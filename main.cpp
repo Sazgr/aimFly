@@ -1,3 +1,4 @@
+#include <bits/stdc++.h>
 #include "raylib.h"
 
 #define RLIGHTS_IMPLEMENTATION
@@ -28,14 +29,13 @@ int main()
 
     // Camera setup
     Camera camera = {0};
-    camera.position = (Vector3){8.0f, 8.0f, 8.0f};    // Camera position
-    camera.target = (Vector3){0.0f, 1.0f, -1.0f};     // Camera looking at point
+    camera.position = (Vector3){0.0f, 0.0f, 0.0f};    // Camera position
+    camera.target = (Vector3){0.0f, 0.0f, -1.0f};     // Camera looking at point
     camera.up = (Vector3){0.0f, 1.0f, 0.0f};          // Camera up vector (rotation towards target)
-    camera.fovy = 45.0f;                                // Camera field-of-view Y
+    camera.fovy = 30.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
-	Vector3 cameraPosition;
-	float yaw;   // left/right
-	float pitch; // up/down
+	float yaw = 0;   // left/right
+	float pitch = 0; // up/down
 	
 	Shader shader = LoadShader(TextFormat("assets\\shaders\\glsl%i\\lighting.vs", GLSL_VERSION),
                                TextFormat("assets\\shaders\\glsl%i\\lighting.fs", GLSL_VERSION));
@@ -51,17 +51,21 @@ int main()
                 (Vector3){ 0.0f, -1.0f, 0.0f },  // shining downward
                 WHITE, shader);
 	
-    Model model = LoadModel("assets\\ghost.obj");
-    Texture2D texture = LoadTexture("assets\\t1.png");
+    Model model = LoadModel("assets\\ghost\\object.obj");
+    Texture2D normalMap = LoadTexture("assets\\ghost\\bump.png");
+	Texture2D diffuseMap = LoadTexture("assets\\ghost\\diffuse.png");
+	Texture2D roughnessMap = LoadTexture("assets\\ghost\\roughness.png");
 
-    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture; // Bind texture to model
+    model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = diffuseMap;
+	model.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normalMap;
+	model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = roughnessMap;
 	model.materials[0].shader = shader;
 
     Vector3 position = { 0.0f, 0.0f, 0.0f };    // Set model position
 
     DisableCursor();
     bool cursorEnabled = false;
-    SetTargetFPS(1000);
+    SetTargetFPS(100);
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -86,16 +90,15 @@ int main()
 
 		Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, (Vector3){0,1,0}));
 		
-		float speed = 0.1f;
-		if (IsKeyDown(KEY_W)) cameraPosition = Vector3Add(cameraPosition, Vector3Scale(forward, speed));
-		if (IsKeyDown(KEY_S)) cameraPosition = Vector3Subtract(cameraPosition, Vector3Scale(forward, speed));
-		if (IsKeyDown(KEY_D)) cameraPosition = Vector3Add(cameraPosition, Vector3Scale(right, speed));
-		if (IsKeyDown(KEY_A)) cameraPosition = Vector3Subtract(cameraPosition, Vector3Scale(right, speed));
+		float speed = 0.01f;
+		if (IsKeyDown(KEY_W)) camera.position = Vector3Add(camera.position, Vector3Scale(forward, speed));
+		if (IsKeyDown(KEY_S)) camera.position = Vector3Subtract(camera.position, Vector3Scale(forward, speed));
+		if (IsKeyDown(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(right, speed));
+		if (IsKeyDown(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(right, speed));
 		
-		//camera.position = cameraPosition;
-		//camera.target   = Vector3Add(cameraPosition, forward);
-		//camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-		//camera.up       = Vector3CrossProduct(right, forward);
+		camera.position = camera.position;
+		camera.target = Vector3Add(camera.position, forward);
+		camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
 
 		// Toggle cursor on ESC
         if (IsKeyPressed(KEY_ESCAPE)) {
@@ -117,39 +120,26 @@ int main()
 
             BeginMode3D(camera);
 
-                DrawGrid(10, 1.0f);     // Draw a grid
+                //DrawGrid(10, 1.0f);     // Draw a grid
 
             EndMode3D();
 
 			BeginMode3D(camera);
 				
 				Vector3 upVec = Vector3CrossProduct(right, forward);
-				position = Vector3Add(cameraPosition,
+				position = Vector3Add(camera.position,
 					Vector3Add(
-						Vector3Scale(forward, -5.0f),   // 0.5 units in front
+						Vector3Scale(forward, 5.0f),   // 0.5 units in front
 						Vector3Add(
-							Vector3Scale(right, 0.0f), // 0.3 units to the right
-							Vector3Scale(upVec, 0.0f) // 0.2 units down
+							Vector3Scale(right, 1.0f), // 0.3 units to the right
+							Vector3Scale(upVec, -1.0f) // 0.2 units down
 						)
 					)
 				);
+
+				model.transform = MatrixRotateXYZ((Vector3){0, -yaw, pitch});
+				
 				DrawModel(model, position, 0.1f, WHITE);
-				//DrawLine3D(position, Vector3Add(position, (Vector3){0,0,-1}), RED); // -Z
-				//DrawLine3D(position, Vector3Add(position, (Vector3){0,0,1}), BLUE); // +Z
-				//DrawLine3D(position, Vector3Add(position, (Vector3){1,0,0}), GREEN); // +X
-				//DrawLine3D(position, Vector3Add(position, (Vector3){0,1,0}), YELLOW); // +Y
-				/*Matrix gunTransform = {
-				   -forward.x, -forward.y, -forward.z, 0,  // local -X → camera forward
-					upVec.x,    upVec.y,    upVec.z, 0,    // local +Y → camera up
-				   -right.x,   -right.y,   -right.z, 0,    // local -Z → camera right
-					position.x, position.y, position.z, 1
-				};
-				
-				rlPushMatrix();
-					rlMultMatrixf(MatrixToFloat(gunTransform));  // Apply camera-relative transform
-					DrawModel(model, (Vector3){0,0,0}, 0.05f, WHITE); // draw at origin in transformed space
-				rlPopMatrix();*/
-				
 			
 			EndMode3D();
             DrawFPS(10, 10);
@@ -160,7 +150,9 @@ int main()
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadTexture(texture);     // Unload texture
+    UnloadTexture(diffuseMap);
+	UnloadTexture(normalMap);
+	UnloadTexture(roughnessMap);
     UnloadModel(model);         // Unload model
 
     CloseWindow();              // Close window and OpenGL context
