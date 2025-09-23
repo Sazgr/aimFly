@@ -42,7 +42,7 @@ int main()
 	
     Model model = LoadModel("assets\\ghost\\object.obj");
     //Texture2D normalMap = LoadTexture("assets\\ghost\\bump.png");
-	Texture2D albedoMap = LoadTexture("assets\\ghost\\diffuse.png");
+	Texture2D albedoMap = LoadTexture("assets\\ghost\\diffuse.png"); 
 	//Texture2D roughnessMap = LoadTexture("assets\\ghost\\roughness.png");
 
     for (int i = 0; i < model.materialCount; i++) {
