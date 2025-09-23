@@ -39,21 +39,26 @@ int main()
 	float yaw = 0;   // left/right
 	float pitch = 0; // up/down
 	
-	Shader shader = LoadShader(TextFormat("assets\\shaders\\glsl%i\\lighting.vs", GLSL_VERSION),
-                               TextFormat("assets\\shaders\\glsl%i\\lighting.fs", GLSL_VERSION));
-	
+	Shader shader = LoadShader(TextFormat("assets\\shaders\\glsl%i\\normalmap.vs", GLSL_VERSION),
+                               TextFormat("assets\\shaders\\glsl%i\\normalmap.fs", GLSL_VERSION));
+	shader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(shader, "normalMap");
+    shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+	Vector3 lightPosition = { 0.0f, 1.0f, 0.0f };
+    int lightPosLoc = GetShaderLocation(shader, "lightPos");
     Model model = LoadModel("assets\\ghost\\object.obj");
-    //Texture2D normalMap = LoadTexture("assets\\ghost\\bump.png");
-	Texture2D albedoMap = LoadTexture("assets\\ghost\\diffuse.png"); 
+    Texture2D normalMap = LoadTexture("assets\\ghost\\bump.png");
+	Texture2D diffuseMap = LoadTexture("assets\\ghost\\diffuse.png"); 
 	//Texture2D roughnessMap = LoadTexture("assets\\ghost\\roughness.png");
 
-    for (int i = 0; i < model.materialCount; i++) {
-		model.materials[i].shader = shader;
-		model.materials[i].maps[MATERIAL_MAP_ALBEDO].texture = albedoMap;
-		//model.materials[i].maps[MATERIAL_MAP_NORMAL].texture  = normalMap;
-		// store roughness in specular map slot (many people do this)
-		//model.materials[i].maps[MATERIAL_MAP_ROUGHNESS].texture = roughnessMap;
-	}
+	model.materials[0].shader = shader;
+	model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = diffuseMap;
+	model.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normalMap;
+	
+	GenTextureMipmaps(&model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
+    GenTextureMipmaps(&model.materials[0].maps[MATERIAL_MAP_NORMAL].texture);
+
+    SetTextureFilter(model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture, TEXTURE_FILTER_TRILINEAR);
+    SetTextureFilter(model.materials[0].maps[MATERIAL_MAP_NORMAL].texture, TEXTURE_FILTER_TRILINEAR);
 	
 	// Create a 1x1 white texture
 	//Image whiteImg = GenImageColor(1, 1, WHITE);
@@ -61,37 +66,38 @@ int main()
 	//UnloadImage(whiteImg); // we don't need the CPU-side image anymore
 
 	// Assign to shader
-	//SetShaderValueTexture(shader, GetShaderLocation(shader, "albedoMap"), whiteTex);
+	//SetShaderValueTexture(shader, GetShaderLocation(shader, "diffuseMap"), whiteTex);
 	
-	SetShaderValueTexture(shader, GetShaderLocation(shader, "albedoMap"), albedoMap);
+	//SetShaderValueTexture(shader, GetShaderLocation(shader, "diffuseMap"), diffuseMap);
 	//SetShaderValueTexture(shader, GetShaderLocation(shader, "normalMap"), normalMap);
+	
+	float specularExponent = 32.0f;
+    int specularExponentLoc = GetShaderLocation(shader, "specularExponent");
 	//SetShaderValueTexture(shader, GetShaderLocation(shader, "roughnessMap"), roughnessMap);
 	
 	// Get uniform locations
-	int locCameraPos = GetShaderLocation(shader, "cameraPos");
-	int locLightDir = GetShaderLocation(shader, "lightDir");
-	int locLightColor = GetShaderLocation(shader, "lightColor");
-	int locAmbientColor = GetShaderLocation(shader, "ambientColor");
-	int locAmbient = GetShaderLocation(shader, "ambient");
+	//int locCameraPos = GetShaderLocation(shader, "cameraPos");
+	//int locLightDir = GetShaderLocation(shader, "lightDir");
+	//int locLightColor = GetShaderLocation(shader, "lightColor");
 
 	// IMPORTANT: bind samplers names to texture units if necessary
-	// If your shader uses sampler names 'albedoMap','normalMap','roughnessMap', ensure those names are bound.
+	// If your shader uses sampler names 'diffuseMap','normalMap','roughnessMap', ensure those names are bound.
 	// Raylib may automatically bind material maps to :
 	//  - MATERIAL_MAP_DIFFUSE → "texture0" or the shader's sampler at location 0.
 	// Safer: set shader samplers explicitly (if your Raylib version exposes this):
-	int locAlbedoSampler = GetShaderLocation(shader, "albedoMap");
-	//int locNormalSampler = GetShaderLocation(shader, "normalMap");
+	int locDiffuseSampler = GetShaderLocation(shader, "diffuseMap");
+	int locNormalSampler = GetShaderLocation(shader, "normalMap");
 	//int locRoughnessSampler = GetShaderLocation(shader, "roughnessMap");
 	
 	//Directional light
-	Vector3 lightDirection = (Vector3){ 0.0f, 1.0f, 0.0f }; //downwards
-	CreateLight(LIGHT_DIRECTIONAL,
-                (Vector3){ 0.0f, 10.0f, 0.0f },   // position (not really used for directional)
-                lightDirection,
-                WHITE, shader);
+	//Vector3 lightDirection = (Vector3){ 0.0f, 1.0f, 0.0f }; //downwards
+	//CreateLight(LIGHT_DIRECTIONAL,
+    //            (Vector3){ 0.0f, 10.0f, 0.0f },   // position (not really used for directional)
+    //            lightDirection,
+    //            WHITE, shader);
 	
-	Vector3 lightCol = { 30.0f, 30.0f, 30.0f }; // bright white light
-	lightsCount = 1;
+	//Vector3 lightCol = { 30.0f, 30.0f, 30.0f }; // bright white light
+	//lightsCount = 1;
 	
     Vector3 position = { 0.0f, 0.0f, 0.0f };    // Set model position
 	
@@ -160,15 +166,20 @@ int main()
 					
 				EndShaderMode();
 				target.draw();
+				float lightPos[3] = {lightPosition.x, lightPosition.y, lightPosition.z};
+				SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
+
+				float camPos[3] = {camera.position.x, camera.position.y, camera.position.z};
+
+
+
+				//SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
+				SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camPos, SHADER_UNIFORM_VEC3);
+				SetShaderValue(shader, specularExponentLoc, &specularExponent, SHADER_UNIFORM_FLOAT);
+				//SetShaderValue(shader, locCameraPos, &camera.position, SHADER_UNIFORM_VEC3);
+				//SetShaderValue(shader, locLightDir, &lightDirection, SHADER_UNIFORM_VEC3);
+				//SetShaderValue(shader, locLightColor, &lightCol, SHADER_UNIFORM_VEC3);
 				
-				SetShaderValue(shader, locCameraPos, &camera.position, SHADER_UNIFORM_VEC3);
-				SetShaderValue(shader, locLightDir, &lightDirection, SHADER_UNIFORM_VEC3);
-				SetShaderValue(shader, locLightColor, &lightCol, SHADER_UNIFORM_VEC3);
-				
-				Vector3 ambientColor = (Vector3){1.0f, 1.0f, 1.0f};
-				float ambient = 0.1f;
-				SetShaderValue(shader, locAmbientColor, &ambientColor, SHADER_UNIFORM_VEC3);
-				SetShaderValue(shader, locAmbient, &ambient, SHADER_UNIFORM_FLOAT);
 				
 				Vector3 upVec = Vector3CrossProduct(right, forward);
 				position = Vector3Add(camera.position,
@@ -209,8 +220,8 @@ int main()
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadTexture(albedoMap);
-	//UnloadTexture(normalMap);
+    UnloadTexture(diffuseMap);
+	UnloadTexture(normalMap);
 	//UnloadTexture(roughnessMap);
     UnloadModel(model);         // Unload model
 
