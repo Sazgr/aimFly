@@ -28,6 +28,9 @@ int main()
 
     InitWindow(screen_width, screen_height, "aimfly");
 	SetExitKey(KEY_NULL);
+	
+	InitAudioDevice();
+    Sound shootSound = LoadSound("assets\\ghost\\shoot.mp3");
 
     // Camera setup
     Camera camera = {0};
@@ -43,7 +46,7 @@ int main()
                                TextFormat("assets\\shaders\\glsl%i\\normalmap.fs", GLSL_VERSION));
 	shader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(shader, "normalMap");
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
-	Vector3 lightPosition = { 0.0f, 1.0f, 0.0f };
+	Vector3 lightPosition = { 0.0f, 2.0f, 0.0f };
     int lightPosLoc = GetShaderLocation(shader, "lightPos");
     Model model = LoadModel("assets\\ghost\\object.obj");
     Texture2D normalMap = LoadTexture("assets\\ghost\\bump.png");
@@ -71,7 +74,7 @@ int main()
 	//SetShaderValueTexture(shader, GetShaderLocation(shader, "diffuseMap"), diffuseMap);
 	//SetShaderValueTexture(shader, GetShaderLocation(shader, "normalMap"), normalMap);
 	
-	float specularExponent = 32.0f;
+	float specularExponent = 128.0f;
     int specularExponentLoc = GetShaderLocation(shader, "specularExponent");
 	//SetShaderValueTexture(shader, GetShaderLocation(shader, "roughnessMap"), roughnessMap);
 	
@@ -151,6 +154,9 @@ int main()
         if (cursorEnabled && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             DisableCursor();
             cursorEnabled = false;
+        }
+		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            PlaySound(shootSound); // play sound on click
         }
 
         // Draw
