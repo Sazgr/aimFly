@@ -34,7 +34,7 @@ int main()
     camera.position = (Vector3){0.0f, 0.0f, 0.0f};    // Camera position
     camera.target = (Vector3){0.0f, 0.0f, -1.0f};     // Camera looking at point
     camera.up = (Vector3){0.0f, 1.0f, 0.0f};          // Camera up vector (rotation towards target)
-    camera.fovy = 30.0f;                                // Camera field-of-view Y
+    camera.fovy = 70.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 	float yaw = 0;   // left/right
 	float pitch = 0; // up/down
@@ -152,15 +152,13 @@ int main()
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
-
-            BeginMode3D(camera);
-
-                //DrawGrid(10, 1.0f);     // Draw a grid
-
-            EndMode3D();
-
-			BeginMode3D(camera);
 			
+			BeginMode3D(camera);
+				BeginShaderMode(shader);
+					DrawCube(Vector3{0.0f, -2.0f, 0.0f}, 20.0, 2.0, 20.0, GRAY);
+					DrawCube(Vector3{9.0f, 4.0f, 0.0f}, 2.0, 10.0, 10.0, GRAY);
+					
+				EndShaderMode();
 				target.draw();
 				
 				SetShaderValue(shader, locCameraPos, &camera.position, SHADER_UNIFORM_VEC3);
@@ -175,10 +173,10 @@ int main()
 				Vector3 upVec = Vector3CrossProduct(right, forward);
 				position = Vector3Add(camera.position,
 					Vector3Add(
-						Vector3Scale(forward, 5.0f),   // 0.5 units in front
+						Vector3Scale(forward, 1.8f),   // 0.5 units in front
 						Vector3Add(
-							Vector3Scale(right, 1.0f), // 0.3 units to the right
-							Vector3Scale(upVec, -1.0f) // 0.2 units down
+							Vector3Scale(right, 0.8f), // 0.3 units to the right
+							Vector3Scale(upVec, -0.5f) // 0.2 units down
 						)
 					)
 				);
