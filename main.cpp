@@ -7,6 +7,8 @@
 #include "raymath.h"
 #include "rlgl.h"
 
+#include "spheretarget.h"
+
 #define PLATFORM_DESKTOP
 
 #if defined(PLATFORM_DESKTOP)
@@ -92,7 +94,10 @@ int main()
 	lightsCount = 1;
 	
     Vector3 position = { 0.0f, 0.0f, 0.0f };    // Set model position
-
+	
+	
+	SphereTarget target((Vector3){8.0f, 0.0f, 0.0f}, 0.2f);
+	target.addShader(shader);
     DisableCursor();
     bool cursorEnabled = false;
     SetTargetFPS(100);
@@ -155,6 +160,8 @@ int main()
             EndMode3D();
 
 			BeginMode3D(camera);
+			
+				target.draw();
 				
 				SetShaderValue(shader, locCameraPos, &camera.position, SHADER_UNIFORM_VEC3);
 				SetShaderValue(shader, locLightDir, &lightDirection, SHADER_UNIFORM_VEC3);
@@ -181,6 +188,21 @@ int main()
 				DrawModel(model, position, 0.1f, WHITE);
 			
 			EndMode3D();
+			
+			// Crosshair
+			int centerX = GetScreenWidth()/2;
+			int centerY = GetScreenHeight()/2;
+			int size    = 10;   // half-length of crosshair arms
+			int thickness = 2;
+
+			DrawLineEx((Vector2){centerX - size, centerY}, 
+					   (Vector2){centerX + size, centerY}, 
+					   thickness, BLACK);
+
+			DrawLineEx((Vector2){centerX, centerY - size}, 
+					   (Vector2){centerX, centerY + size}, 
+					   thickness, BLACK);
+			
             DrawFPS(10, 10);
 
         EndDrawing();
