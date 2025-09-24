@@ -8,6 +8,7 @@
 #include "rlgl.h"
 
 #include "spheretarget.h"
+#include "hitscan.h"
 
 #define PLATFORM_DESKTOP
 
@@ -47,7 +48,7 @@ int main()
                                TextFormat("assets\\shaders\\glsl%i\\normalmap.fs", GLSL_VERSION));
 	shader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(shader, "normalMap");
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
-	Vector3 lightPosition = { 0.0f, 2.0f, 0.0f };
+	Vector3 lightPosition = { 0.0f, 4.0f, 0.0f };
     int lightPosLoc = GetShaderLocation(shader, "lightPos");
     Model model = LoadModel("assets\\ghost\\object.obj");
     Texture2D normalMap = LoadTexture("assets\\ghost\\bump.png");
@@ -73,11 +74,18 @@ int main()
 	
 	std::vector<SphereTarget> sphereTargets{};
 	sphereTargets.reserve(10); //reserve so targets dont get moved, invalidating GPU handles
-	sphereTargets.emplace_back((Vector3){8.0f, 0.0f, 0.0f}, 0.2f);
-	sphereTargets.emplace_back((Vector3){8.0f, 1.0f, 1.0f}, 0.2f);
+	sphereTargets.emplace_back((Vector3){8.0f, 0.0f, 0.0f}, 0.3f);
+	sphereTargets.emplace_back((Vector3){8.0f, 1.0f, 0.0f}, 0.3f);
+	sphereTargets.emplace_back((Vector3){8.0f, 0.0f, 1.0f}, 0.3f);
 	for (int i{}; i < sphereTargets.size(); ++i) {
 		sphereTargets[i].addShader(shader);
 	}
+	bool targetPresent[3][3]{
+		{0, 1, 0},
+		{0, 1, 1},
+		{0, 0, 0}
+	};
+	
     DisableCursor();
     bool cursorEnabled = false;
     SetTargetFPS(400);
@@ -128,18 +136,34 @@ int main()
         }
 		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             PlaySound(shootSound); // play sound on click
+			for (int i{}; i < sphereTargets.size(); ++i) {
+				if(hitscan(camera.position, forward, sphereTargets[i])) {
+					int newY = (std::rand() % 3) - 1;
+					int newZ = (std::rand() % 3) - 1;
+					while (targetPresent[newY + 1][newZ + 1]) {
+						newY = (std::rand() % 3) - 1;
+						newZ = (std::rand() % 3) - 1;
+					}
+					targetPresent[static_cast<int>(sphereTargets[i].position.y + 1.5)][static_cast<int>(sphereTargets[i].position.z + 1.5)] = false;
+					sphereTargets[i].position.y = newY;
+					sphereTargets[i].position.z = newZ;
+					targetPresent[newY + 1][newZ + 1] = true;
+				}
+			}
         }
+		
+		
 
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+            ClearBackground(SKYBLUE);
 			
 			BeginMode3D(camera);
 				BeginShaderMode(shader);
-					DrawCube(Vector3{0.0f, -2.0f, 0.0f}, 20.0, 2.0, 20.0, GRAY);
-					DrawCube(Vector3{9.0f, 4.0f, 0.0f}, 2.0, 10.0, 10.0, GRAY);
+					DrawCube(Vector3{3.0f, -4.0f, 0.0f}, 30.0, 2.0, 20.0, GRAY);
+					DrawCube(Vector3{13.0f, 4.0f, 0.0f}, 2.0, 14.0, 10.0, GRAY);
 					
 				EndShaderMode();
 				for (int i{}; i < sphereTargets.size(); ++i) {
