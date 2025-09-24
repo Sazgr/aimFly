@@ -8,6 +8,7 @@ class SphereTarget {
 	public:
 	SphereTarget(Vector3 position, float radius) {
 		this->position = position;
+		this->radius = radius;
 		Mesh mesh = GenMeshSphere(radius, 32, 32);
 		this->model = LoadModelFromMesh(mesh);
 		//UnloadMesh(mesh); 
@@ -26,6 +27,7 @@ class SphereTarget {
 	}
 	
 	Vector3 position;
+	float radius;
 	Model model;
 };
 
