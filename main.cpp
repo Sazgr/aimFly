@@ -129,12 +129,14 @@ int main()
         if (IsKeyPressed(KEY_ESCAPE)) {
             EnableCursor();
             cursorEnabled = true;
+			ToggleFullscreen();
         }
 
         //if user clicks inside window, hide cursor again
         if (cursorEnabled && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             DisableCursor();
             cursorEnabled = false;
+			ToggleFullscreen();
         }
 		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             PlaySound(shootSound); // play sound on click
