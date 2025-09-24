@@ -11,22 +11,14 @@
                 "-std=c++14",
 
                 "-I", "C:/raylib/raylib/src",
-                "-I", "C:/opencv/install/include",
-                "-I", "C:/opencv/install/include/opencv2",
                 "-I", "${workspaceFolder}/lib/raylib/src",
 
 
                 "${file}",
 
                 "-L", "C:/raylib/raylib/src",
-                "-L", "C:/opencv/install/x64/mingw/lib",
 
                 "-lraylib",
-                "-lopencv_core4110",
-                "-lopencv_imgproc4110",
-                "-lopencv_imgcodecs4110",
-                "-lopencv_highgui4110",
-                "-lopencv_videoio4110",
                 "-lopengl32",
                 "-lgdi32",
                 "-lwinmm",

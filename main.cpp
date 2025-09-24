@@ -7,6 +7,9 @@
 #include "raymath.h"
 #include "rlgl.h"
 
+#include "spheretarget.h"
+#include "hitscan.h"
+
 #define PLATFORM_DESKTOP
 
 #if defined(PLATFORM_DESKTOP)
@@ -17,65 +20,85 @@
 
 int main()
 {
-    const int screen_width = 800;
-    const int screen_height = 450;
+    const int screen_width = 2400;
+    const int screen_height = 1350;
 	
-	float sensitivity = 0.003f;
+	float sensitivity = 0.19f;
+	float sensitivityConstant = 0.00122f;
 
     SetConfigFlags(FLAG_MSAA_4X_HINT); // Multi Sampling Anti Aliasing 4x
 
     InitWindow(screen_width, screen_height, "aimfly");
 	SetExitKey(KEY_NULL);
+	
+	InitAudioDevice();
+    Sound shootSound = LoadSound("assets\\ghost\\shoot.mp3");
 
     // Camera setup
     Camera camera = {0};
     camera.position = (Vector3){0.0f, 0.0f, 0.0f};    // Camera position
     camera.target = (Vector3){0.0f, 0.0f, -1.0f};     // Camera looking at point
     camera.up = (Vector3){0.0f, 1.0f, 0.0f};          // Camera up vector (rotation towards target)
-    camera.fovy = 30.0f;                                // Camera field-of-view Y
+    camera.fovy = 70.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 	float yaw = 0;   // left/right
 	float pitch = 0; // up/down
 	
-	Shader shader = LoadShader(TextFormat("assets\\shaders\\glsl%i\\lighting.vs", GLSL_VERSION),
-                               TextFormat("assets\\shaders\\glsl%i\\lighting.fs", GLSL_VERSION));
-	
-	// Ambient light
-	int ambientLoc = GetShaderLocation(shader, "ambient");
-    float ambient[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    SetShaderValue(shader, ambientLoc, ambient, SHADER_UNIFORM_VEC4);
-	
-	//Directional light
-	CreateLight(LIGHT_DIRECTIONAL,
-                (Vector3){ 0.0f, 10.0f, 0.0f },   // position (not really used for directional)
-                (Vector3){ 0.0f, -1.0f, 0.0f },  // shining downward
-                WHITE, shader);
-	
+	Shader shader = LoadShader(TextFormat("assets\\shaders\\glsl%i\\normalmap.vs", GLSL_VERSION),
+                               TextFormat("assets\\shaders\\glsl%i\\normalmap.fs", GLSL_VERSION));
+	shader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(shader, "normalMap");
+    shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+	Vector3 lightPosition = { 0.0f, 4.0f, 0.0f };
+    int lightPosLoc = GetShaderLocation(shader, "lightPos");
     Model model = LoadModel("assets\\ghost\\object.obj");
     Texture2D normalMap = LoadTexture("assets\\ghost\\bump.png");
-	Texture2D diffuseMap = LoadTexture("assets\\ghost\\diffuse.png");
-	Texture2D roughnessMap = LoadTexture("assets\\ghost\\roughness.png");
+	Texture2D diffuseMap = LoadTexture("assets\\ghost\\diffuse.png"); 
 
-    model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = diffuseMap;
-	model.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normalMap;
-	model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = roughnessMap;
 	model.materials[0].shader = shader;
+	model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = diffuseMap;
+	model.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normalMap;
+	
+	GenTextureMipmaps(&model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
+    GenTextureMipmaps(&model.materials[0].maps[MATERIAL_MAP_NORMAL].texture);
 
+    SetTextureFilter(model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture, TEXTURE_FILTER_TRILINEAR);
+    SetTextureFilter(model.materials[0].maps[MATERIAL_MAP_NORMAL].texture, TEXTURE_FILTER_TRILINEAR);
+	
+	float specularExponent = 128.0f;
+    int specularExponentLoc = GetShaderLocation(shader, "specularExponent");
+
+	int locDiffuseSampler = GetShaderLocation(shader, "diffuseMap");
+	int locNormalSampler = GetShaderLocation(shader, "normalMap");
+	
     Vector3 position = { 0.0f, 0.0f, 0.0f };    // Set model position
-
+	
+	std::vector<SphereTarget> sphereTargets{};
+	sphereTargets.reserve(10); //reserve so targets dont get moved, invalidating GPU handles
+	sphereTargets.emplace_back((Vector3){8.0f, 0.0f, 0.0f}, 0.3f);
+	sphereTargets.emplace_back((Vector3){8.0f, 1.0f, 0.0f}, 0.3f);
+	sphereTargets.emplace_back((Vector3){8.0f, 0.0f, 1.0f}, 0.3f);
+	for (int i{}; i < sphereTargets.size(); ++i) {
+		sphereTargets[i].addShader(shader);
+	}
+	bool targetPresent[3][3]{
+		{0, 1, 0},
+		{0, 1, 1},
+		{0, 0, 0}
+	};
+	
     DisableCursor();
     bool cursorEnabled = false;
-    SetTargetFPS(100);
+    SetTargetFPS(400);
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())        // Detect window close button or ESC key
+    while (!WindowShouldClose()) //detect window close button
     {
         //update camera
 		Vector2 mouseDelta = GetMouseDelta();
 
-		yaw   += mouseDelta.x * sensitivity;
-		pitch -= mouseDelta.y * sensitivity;
+		yaw   += mouseDelta.x * sensitivity * sensitivityConstant;
+		pitch -= mouseDelta.y * sensitivity * sensitivityConstant;
 
 		// clamp pitch so you can’t flip
 		if (pitch > 0.5 * PI - 0.01) pitch = 0.5 * PI - 0.01;
@@ -100,39 +123,67 @@ int main()
 		camera.target = Vector3Add(camera.position, forward);
 		camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
 
-		// Toggle cursor on ESC
+		//toggle cursor on escape key
         if (IsKeyPressed(KEY_ESCAPE)) {
             EnableCursor();
             cursorEnabled = true;
         }
 
-        // If user clicks inside window, hide cursor again
+        //if user clicks inside window, hide cursor again
         if (cursorEnabled && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             DisableCursor();
             cursorEnabled = false;
         }
+		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            PlaySound(shootSound); // play sound on click
+			for (int i{}; i < sphereTargets.size(); ++i) {
+				if(hitscan(camera.position, forward, sphereTargets[i])) {
+					int newY = (std::rand() % 3) - 1;
+					int newZ = (std::rand() % 3) - 1;
+					while (targetPresent[newY + 1][newZ + 1]) {
+						newY = (std::rand() % 3) - 1;
+						newZ = (std::rand() % 3) - 1;
+					}
+					targetPresent[static_cast<int>(sphereTargets[i].position.y + 1.5)][static_cast<int>(sphereTargets[i].position.z + 1.5)] = false;
+					sphereTargets[i].position.y = newY;
+					sphereTargets[i].position.z = newZ;
+					targetPresent[newY + 1][newZ + 1] = true;
+				}
+			}
+        }
+		
+		
 
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
-
-            BeginMode3D(camera);
-
-                //DrawGrid(10, 1.0f);     // Draw a grid
-
-            EndMode3D();
-
+            ClearBackground(SKYBLUE);
+			
 			BeginMode3D(camera);
+				BeginShaderMode(shader);
+					DrawCube(Vector3{3.0f, -4.0f, 0.0f}, 30.0, 2.0, 20.0, GRAY);
+					DrawCube(Vector3{13.0f, 4.0f, 0.0f}, 2.0, 14.0, 10.0, GRAY);
+					
+				EndShaderMode();
+				for (int i{}; i < sphereTargets.size(); ++i) {
+					sphereTargets[i].draw();
+				}
+				float lightPos[3] = {lightPosition.x, lightPosition.y, lightPosition.z};
+				SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
+
+				float camPos[3] = {camera.position.x, camera.position.y, camera.position.z};
+				SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camPos, SHADER_UNIFORM_VEC3);
+				
+				SetShaderValue(shader, specularExponentLoc, &specularExponent, SHADER_UNIFORM_FLOAT);
 				
 				Vector3 upVec = Vector3CrossProduct(right, forward);
 				position = Vector3Add(camera.position,
 					Vector3Add(
-						Vector3Scale(forward, 5.0f),   // 0.5 units in front
+						Vector3Scale(forward, 1.8f),   // 1.8 units in front
 						Vector3Add(
-							Vector3Scale(right, 1.0f), // 0.3 units to the right
-							Vector3Scale(upVec, -1.0f) // 0.2 units down
+							Vector3Scale(right, 0.8f), // 0.8 units to the right
+							Vector3Scale(upVec, -0.5f) // 0.5 units down
 						)
 					)
 				);
@@ -142,6 +193,21 @@ int main()
 				DrawModel(model, position, 0.1f, WHITE);
 			
 			EndMode3D();
+			
+			// Crosshair
+			int centerX = GetScreenWidth()/2;
+			int centerY = GetScreenHeight()/2;
+			int size    = 10;   // half-length of crosshair arms
+			int thickness = 2;
+
+			DrawLineEx((Vector2){centerX - size, centerY}, 
+					   (Vector2){centerX + size, centerY}, 
+					   thickness, BLACK);
+
+			DrawLineEx((Vector2){centerX, centerY - size}, 
+					   (Vector2){centerX, centerY + size}, 
+					   thickness, BLACK);
+			
             DrawFPS(10, 10);
 
         EndDrawing();
@@ -152,7 +218,6 @@ int main()
     //--------------------------------------------------------------------------------------
     UnloadTexture(diffuseMap);
 	UnloadTexture(normalMap);
-	UnloadTexture(roughnessMap);
     UnloadModel(model);         // Unload model
 
     CloseWindow();              // Close window and OpenGL context
