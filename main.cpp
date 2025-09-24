@@ -9,6 +9,7 @@
 
 #include "spheretarget.h"
 #include "hitscan.h"
+#include "timer.h"
 
 #define PLATFORM_DESKTOP
 
@@ -24,6 +25,9 @@ int main()
 	
 	float sensitivity = 0.19f;
 	float sensitivityConstant = 0.00122f;
+	
+	int score = 0;
+	Timer timer;
 
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE); // Multi Sampling Anti Aliasing 4x
 
@@ -142,6 +146,7 @@ int main()
             PlaySound(shootSound); // play sound on click
 			for (int i{}; i < sphereTargets.size(); ++i) {
 				if(hitscan(camera.position, forward, sphereTargets[i])) {
+					++score;
 					int newY = (std::rand() % 3) - 1;
 					int newZ = (std::rand() % 3) - 1;
 					while (targetPresent[newY + 1][newZ + 1]) {
@@ -212,7 +217,9 @@ int main()
 					   (Vector2){(float)(centerX), (float)(centerY + size)}, 
 					   thickness, BLACK);
 			
-            DrawFPS(centerX, centerY);
+			DrawText((std::string{"Score: "} + std::to_string(score)).c_str(), 40, 40, 20, BLACK);
+			DrawText((std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), 40, 80, 20, BLACK);
+            DrawFPS(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
