@@ -20,15 +20,17 @@
 
 int main()
 {
-    const int screen_width = 2400;
-    const int screen_height = 1350;
+    
 	
 	float sensitivity = 0.19f;
 	float sensitivityConstant = 0.00122f;
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT); // Multi Sampling Anti Aliasing 4x
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE); // Multi Sampling Anti Aliasing 4x
 
-    InitWindow(screen_width, screen_height, "aimfly");
+    InitWindow(0, 0, "aimfly");
+	const int screen_width = GetScreenWidth();
+    const int screen_height = GetScreenHeight();
+
 	SetExitKey(KEY_NULL);
 	
 	InitAudioDevice();
@@ -158,7 +160,7 @@ int main()
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-            ClearBackground(SKYBLUE);
+            ClearBackground(SKYBLUE);			
 			
 			BeginMode3D(camera);
 				BeginShaderMode(shader);
@@ -195,20 +197,20 @@ int main()
 			EndMode3D();
 			
 			// Crosshair
-			int centerX = GetScreenWidth()/2;
-			int centerY = GetScreenHeight()/2;
+			int centerX = screen_width / 2;
+			int centerY = screen_height / 2;
 			int size    = 10;   // half-length of crosshair arms
 			int thickness = 2;
 
-			DrawLineEx((Vector2){centerX - size, centerY}, 
-					   (Vector2){centerX + size, centerY}, 
+			DrawLineEx((Vector2){(float)(centerX - size), (float)(centerY)}, 
+					   (Vector2){(float)(centerX + size), (float)(centerY)}, 
 					   thickness, BLACK);
 
-			DrawLineEx((Vector2){centerX, centerY - size}, 
-					   (Vector2){centerX, centerY + size}, 
+			DrawLineEx((Vector2){(float)(centerX), (float)(centerY - size)}, 
+					   (Vector2){(float)(centerX), (float)(centerY + size)}, 
 					   thickness, BLACK);
 			
-            DrawFPS(10, 10);
+            DrawFPS(centerX, centerY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

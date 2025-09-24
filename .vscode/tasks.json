@@ -13,17 +13,17 @@
                 "-I", "C:/raylib/raylib/src",
                 "-I", "${workspaceFolder}/lib/raylib/src",
 
-
-                "${file}",
+                "${workspaceFolder}/main.cpp",
+                "${workspaceFolder}/hitscan.cpp",
 
                 "-L", "C:/raylib/raylib/src",
-
                 "-lraylib",
                 "-lopengl32",
                 "-lgdi32",
                 "-lwinmm",
-                "-o", "${fileDirname}/${fileBasenameNoExtension}.exe"
+                "-o", "${workspaceFolder}/main.exe"
             ],
+
             "options": {
                 "cwd": "${fileDirname}"
             },
@@ -31,8 +31,7 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "detail": "Task generated for building C++ with Raylib and OpenCV (with rlights.h)"
+            }     
         }
     ]
 }
