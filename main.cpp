@@ -19,10 +19,11 @@
 
 int main()
 {
-    const int screen_width = 1600;
-    const int screen_height = 900;
+    const int screen_width = 2400;
+    const int screen_height = 1350;
 	
-	float sensitivity = 0.003f;
+	float sensitivity = 0.19f;
+	float sensitivityConstant = 0.00122f;
 
     SetConfigFlags(FLAG_MSAA_4X_HINT); // Multi Sampling Anti Aliasing 4x
 
@@ -113,7 +114,7 @@ int main()
 	}
     DisableCursor();
     bool cursorEnabled = false;
-    SetTargetFPS(100);
+    SetTargetFPS(400);
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -122,8 +123,8 @@ int main()
         //update camera
 		Vector2 mouseDelta = GetMouseDelta();
 
-		yaw   += mouseDelta.x * sensitivity;
-		pitch -= mouseDelta.y * sensitivity;
+		yaw   += mouseDelta.x * sensitivity * sensitivityConstant;
+		pitch -= mouseDelta.y * sensitivity * sensitivityConstant;
 
 		// clamp pitch so you can’t flip
 		if (pitch > 0.5 * PI - 0.01) pitch = 0.5 * PI - 0.01;
