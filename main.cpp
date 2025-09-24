@@ -104,9 +104,13 @@ int main()
 	
     Vector3 position = { 0.0f, 0.0f, 0.0f };    // Set model position
 	
-	
-	SphereTarget target((Vector3){8.0f, 0.0f, 0.0f}, 0.2f);
-	target.addShader(shader);
+	std::vector<SphereTarget> sphereTargets{};
+	sphereTargets.reserve(10); //reserve so targets dont get moved, invalidating GPU handles
+	sphereTargets.emplace_back((Vector3){8.0f, 0.0f, 0.0f}, 0.2f);
+	sphereTargets.emplace_back((Vector3){8.0f, 1.0f, 1.0f}, 0.2f);
+	for (int i{}; i < sphereTargets.size(); ++i) {
+		sphereTargets[i].addShader(shader);
+	}
     DisableCursor();
     bool cursorEnabled = false;
     SetTargetFPS(100);
@@ -171,7 +175,9 @@ int main()
 					DrawCube(Vector3{9.0f, 4.0f, 0.0f}, 2.0, 10.0, 10.0, GRAY);
 					
 				EndShaderMode();
-				target.draw();
+				for (int i{}; i < sphereTargets.size(); ++i) {
+					sphereTargets[i].draw();
+				}
 				float lightPos[3] = {lightPosition.x, lightPosition.y, lightPosition.z};
 				SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
 
