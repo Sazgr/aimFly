@@ -1,23 +1,23 @@
-#include <bits/stdc++.h>
-#include "raylib.h"
-
 #define RLIGHTS_IMPLEMENTATION
-#include "rlights.h"
-
-#include "raymath.h"
-#include "rlgl.h"
+#define PLATFORM_DESKTOP
+#if defined(PLATFORM_DESKTOP)
+    #define GLSL_VERSION            330
+#else
+    #define GLSL_VERSION            100
+#endif
 
 #include "spheretarget.h"
 #include "hitscan.h"
 #include "timer.h"
+#include "weapon.h"
 
-#define PLATFORM_DESKTOP
+#include "raylib.h"
+#include "raymath.h"
+#include "rlgl.h"
+#include "rlights.h"
 
-#if defined(PLATFORM_DESKTOP)
-    #define GLSL_VERSION            330
-#else   // PLATFORM_ANDROID, PLATFORM_WEB
-    #define GLSL_VERSION            100
-#endif
+#include <string>
+#include <vector>
 
 int main()
 {
@@ -27,6 +27,8 @@ int main()
 	float sensitivityConstant = 0.00122f;
 	
 	int score = 0;
+	int shots = 0;
+	int hits = 0;
 	Timer timer;
 
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE); // Multi Sampling Anti Aliasing 4x
@@ -56,23 +58,11 @@ int main()
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
 	Vector3 lightPosition = { 0.0f, 4.0f, 0.0f };
     int lightPosLoc = GetShaderLocation(shader, "lightPos");
-    Model model = LoadModel("assets\\ghost\\object.obj");
-    Texture2D normalMap = LoadTexture("assets\\ghost\\bump.png");
-	Texture2D diffuseMap = LoadTexture("assets\\ghost\\diffuse.png"); 
-
-	model.materials[0].shader = shader;
-	model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = diffuseMap;
-	model.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normalMap;
-	
-	GenTextureMipmaps(&model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
-    GenTextureMipmaps(&model.materials[0].maps[MATERIAL_MAP_NORMAL].texture);
-
-    SetTextureFilter(model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture, TEXTURE_FILTER_TRILINEAR);
-    SetTextureFilter(model.materials[0].maps[MATERIAL_MAP_NORMAL].texture, TEXTURE_FILTER_TRILINEAR);
 	
 	float specularExponent = 128.0f;
     int specularExponentLoc = GetShaderLocation(shader, "specularExponent");
 
+	Weapon weapon("assets\\ghost\\object.obj", "assets\\ghost\\diffuse.png", "assets\\ghost\\bump.png", shader);
 	int locDiffuseSampler = GetShaderLocation(shader, "diffuseMap");
 	int locNormalSampler = GetShaderLocation(shader, "normalMap");
 	
@@ -144,9 +134,11 @@ int main()
         }
 		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             PlaySound(shootSound); // play sound on click
+			++shots;
 			for (int i{}; i < sphereTargets.size(); ++i) {
 				if(hitscan(camera.position, forward, sphereTargets[i])) {
-					++score;
+					++hits;
+					score += 10;
 					int newY = (std::rand() % 3) - 1;
 					int newZ = (std::rand() % 3) - 1;
 					while (targetPresent[newY + 1][newZ + 1]) {
@@ -171,13 +163,16 @@ int main()
 			
 			BeginMode3D(camera);
 				BeginShaderMode(shader);
+				
 					DrawCube(Vector3{3.0f, -4.0f, 0.0f}, 30.0, 2.0, 20.0, GRAY);
 					DrawCube(Vector3{13.0f, 4.0f, 0.0f}, 2.0, 14.0, 10.0, GRAY);
 					
 				EndShaderMode();
+				
 				for (int i{}; i < sphereTargets.size(); ++i) {
 					sphereTargets[i].draw();
 				}
+				
 				float lightPos[3] = {lightPosition.x, lightPosition.y, lightPosition.z};
 				SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
 
@@ -197,9 +192,9 @@ int main()
 					)
 				);
 
-				model.transform = MatrixRotateXYZ((Vector3){0, -yaw, pitch});
+				weapon.model.transform = MatrixRotateXYZ((Vector3){0, -yaw, pitch});
 				
-				DrawModel(model, position, 0.1f, WHITE);
+				weapon.draw(position, 0.1f);
 			
 			EndMode3D();
 			
@@ -218,21 +213,14 @@ int main()
 					   thickness, BLACK);
 			
 			DrawText((std::string{"Score: "} + std::to_string(score)).c_str(), 40, 40, 20, BLACK);
-			DrawText((std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), 40, 80, 20, BLACK);
+			DrawText((std::string{"Accuracy: "} + std::to_string(shots == 0 ? 0 : hits * 100 / shots) + "%").c_str(), 40, 80, 20, BLACK);
+			DrawText((std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), 40, 120, 20, BLACK);
             DrawFPS(10, 10);
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    UnloadTexture(diffuseMap);
-	UnloadTexture(normalMap);
-    UnloadModel(model);         // Unload model
-
-    CloseWindow();              // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    CloseWindow();
 
     return 0;
 }
