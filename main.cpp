@@ -10,6 +10,7 @@
 #include "spheretarget.h"
 #include "hitscan.h"
 #include "timer.h"
+#include "weapon.h"
 
 #define PLATFORM_DESKTOP
 
@@ -56,23 +57,11 @@ int main()
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
 	Vector3 lightPosition = { 0.0f, 4.0f, 0.0f };
     int lightPosLoc = GetShaderLocation(shader, "lightPos");
-    Model model = LoadModel("assets\\ghost\\object.obj");
-    Texture2D normalMap = LoadTexture("assets\\ghost\\bump.png");
-	Texture2D diffuseMap = LoadTexture("assets\\ghost\\diffuse.png"); 
-
-	model.materials[0].shader = shader;
-	model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = diffuseMap;
-	model.materials[0].maps[MATERIAL_MAP_NORMAL].texture = normalMap;
-	
-	GenTextureMipmaps(&model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
-    GenTextureMipmaps(&model.materials[0].maps[MATERIAL_MAP_NORMAL].texture);
-
-    SetTextureFilter(model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture, TEXTURE_FILTER_TRILINEAR);
-    SetTextureFilter(model.materials[0].maps[MATERIAL_MAP_NORMAL].texture, TEXTURE_FILTER_TRILINEAR);
 	
 	float specularExponent = 128.0f;
     int specularExponentLoc = GetShaderLocation(shader, "specularExponent");
 
+	Weapon weapon("assets\\ghost\\object.obj", "assets\\ghost\\diffuse.png", "assets\\ghost\\bump.png", shader);
 	int locDiffuseSampler = GetShaderLocation(shader, "diffuseMap");
 	int locNormalSampler = GetShaderLocation(shader, "normalMap");
 	
@@ -171,13 +160,16 @@ int main()
 			
 			BeginMode3D(camera);
 				BeginShaderMode(shader);
+				
 					DrawCube(Vector3{3.0f, -4.0f, 0.0f}, 30.0, 2.0, 20.0, GRAY);
 					DrawCube(Vector3{13.0f, 4.0f, 0.0f}, 2.0, 14.0, 10.0, GRAY);
 					
 				EndShaderMode();
+				
 				for (int i{}; i < sphereTargets.size(); ++i) {
 					sphereTargets[i].draw();
 				}
+				
 				float lightPos[3] = {lightPosition.x, lightPosition.y, lightPosition.z};
 				SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
 
@@ -197,9 +189,9 @@ int main()
 					)
 				);
 
-				model.transform = MatrixRotateXYZ((Vector3){0, -yaw, pitch});
+				weapon.model.transform = MatrixRotateXYZ((Vector3){0, -yaw, pitch});
 				
-				DrawModel(model, position, 0.1f, WHITE);
+				weapon.draw(position, 0.1f);
 			
 			EndMode3D();
 			
@@ -222,17 +214,9 @@ int main()
             DrawFPS(10, 10);
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    UnloadTexture(diffuseMap);
-	UnloadTexture(normalMap);
-    UnloadModel(model);         // Unload model
-
-    CloseWindow();              // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    CloseWindow();
 
     return 0;
 }

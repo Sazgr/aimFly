@@ -5,7 +5,7 @@
 #include "raymath.h"
 
 class SphereTarget {
-	public:
+public:
 	SphereTarget(Vector3 position, float radius) {
 		this->position = position;
 		this->radius = radius;
