@@ -1,24 +1,23 @@
-#include <bits/stdc++.h>
-#include "raylib.h"
-
 #define RLIGHTS_IMPLEMENTATION
-#include "rlights.h"
-
-#include "raymath.h"
-#include "rlgl.h"
+#define PLATFORM_DESKTOP
+#if defined(PLATFORM_DESKTOP)
+    #define GLSL_VERSION            330
+#else
+    #define GLSL_VERSION            100
+#endif
 
 #include "spheretarget.h"
 #include "hitscan.h"
 #include "timer.h"
 #include "weapon.h"
 
-#define PLATFORM_DESKTOP
+#include "raylib.h"
+#include "raymath.h"
+#include "rlgl.h"
+#include "rlights.h"
 
-#if defined(PLATFORM_DESKTOP)
-    #define GLSL_VERSION            330
-#else   // PLATFORM_ANDROID, PLATFORM_WEB
-    #define GLSL_VERSION            100
-#endif
+#include <string>
+#include <vector>
 
 int main()
 {
