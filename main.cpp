@@ -10,6 +10,7 @@
 #include "hitscan.h"
 #include "timer.h"
 #include "weapon.h"
+#include "InputManager.h"
 
 #include "raylib.h"
 #include "raymath.h"
@@ -31,14 +32,15 @@ int main() {
     int hits = 0;
     Timer timer;
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_UNDECORATED);
+    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
 
     InitWindow(0, 0, "aimfly");
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
 
     RenderTexture2D aspectScreen = LoadRenderTexture(NATIVE_WIDTH, NATIVE_HEIGHT);
-    SetTextureFilter(aspectScreen.texture, TEXTURE_FILTER_BILINEAR);
+    GenTextureMipmaps(&aspectScreen.texture);
+    SetTextureFilter(aspectScreen.texture, TEXTURE_FILTER_TRILINEAR); // TRILINEAR and mipmaps has similar performance to BILINEAR
 
     float aspectScale = static_cast<float>(screenWidth) / static_cast<float>(NATIVE_WIDTH);
     int scaledWidth = static_cast<int>(NATIVE_WIDTH * aspectScale);
@@ -104,12 +106,15 @@ int main() {
 
     DisableCursor();
     bool cursorEnabled = false;
-    SetTargetFPS(400);
+    SetTargetFPS(0);
+
+    InputManager input;
 
     while (!WindowShouldClose()) {
-        Vector2 mouseDelta = GetMouseDelta();
+        input.update();
+        Vector2 mouseDelta = input.getMouseDelta();
 
-        yaw += mouseDelta.x * sensitivity * sensitivityConstant;
+        yaw   += mouseDelta.x * sensitivity * sensitivityConstant;
         pitch -= mouseDelta.y * sensitivity * sensitivityConstant;
 
         if (pitch > 0.5 * PI - 0.01) pitch = 0.5 * PI - 0.01;
@@ -125,27 +130,27 @@ int main() {
         Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, Vector3{0, 1, 0}));
 
         float speed = 0.01f;
-        if (IsKeyDown(KEY_W)) camera.position = Vector3Add(camera.position, Vector3Scale(forward, speed));
-        if (IsKeyDown(KEY_S)) camera.position = Vector3Subtract(camera.position, Vector3Scale(forward, speed));
-        if (IsKeyDown(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(right, speed));
-        if (IsKeyDown(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(right, speed));
+        if (input.isKeyHeld(KEY_W)) camera.position = Vector3Add(camera.position, Vector3Scale(forward, speed));
+        if (input.isKeyHeld(KEY_S)) camera.position = Vector3Subtract(camera.position, Vector3Scale(forward, speed));
+        if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(right, speed));
+        if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(right, speed));
 
         camera.target = Vector3Add(camera.position, forward);
         camera.up = {0.0f, 1.0f, 0.0f};
 
-        if (IsKeyPressed(KEY_ESCAPE)) {
+        if (input.isKeyPressed(KEY_ESCAPE)) {
             EnableCursor();
             cursorEnabled = true;
             ToggleFullscreen();
         }
 
-        if (cursorEnabled && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if (cursorEnabled && input.isMousePressed(MOUSE_LEFT_BUTTON)) {
             DisableCursor();
             cursorEnabled = false;
             ToggleFullscreen();
         }
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if (input.isMousePressed(MOUSE_LEFT_BUTTON)) {
             PlaySound(shootSound);
             ++shots;
             for (int i = 0; i < sphereTargets.size(); ++i) {
@@ -159,7 +164,7 @@ int main() {
                         newZ = (std::rand() % 3) - 1;
                     }
                     targetPresent[static_cast<int>(sphereTargets[i].position.y + 1.5)]
-                                 [static_cast<int>(sphereTargets[i].position.z + 1.5)] = false;
+                                [static_cast<int>(sphereTargets[i].position.z + 1.5)] = false;
                     sphereTargets[i].position.y = newY;
                     sphereTargets[i].position.z = newZ;
                     targetPresent[newY + 1][newZ + 1] = true;
@@ -212,12 +217,12 @@ int main() {
             int thickness = 2;
 
             DrawLineEx(Vector2{static_cast<float>(centerX - size), static_cast<float>(centerY)},
-                       Vector2{static_cast<float>(centerX + size), static_cast<float>(centerY)},
-                       thickness, BLACK);
+                    Vector2{static_cast<float>(centerX + size), static_cast<float>(centerY)},
+                    thickness, BLACK);
 
             DrawLineEx(Vector2{static_cast<float>(centerX), static_cast<float>(centerY - size)},
-                       Vector2{static_cast<float>(centerX), static_cast<float>(centerY + size)},
-                       thickness, BLACK);
+                    Vector2{static_cast<float>(centerX), static_cast<float>(centerY + size)},
+                    thickness, BLACK);
 
             DrawText((std::string{"Score: "} + std::to_string(score)).c_str(), 40, 40, 20, BLACK);
             DrawText((std::string{"Accuracy: "} + std::to_string(shots == 0 ? 0 : hits * 100 / shots) + "%").c_str(), 40, 80, 20, BLACK);
@@ -227,15 +232,16 @@ int main() {
 
         BeginDrawing();
             ClearBackground(BLACK);
-            
+
             Rectangle sourceRect = {0.0f, 0.0f, static_cast<float>(NATIVE_WIDTH), static_cast<float>(-NATIVE_HEIGHT)};
             Rectangle destRect = {static_cast<float>(offsetX), static_cast<float>(offsetY), static_cast<float>(scaledWidth), static_cast<float>(scaledHeight)};
-            
+
             DrawTexturePro(aspectScreen.texture, sourceRect, destRect, Vector2{0, 0}, 0.0f, WHITE);
-            
+
             DrawFPS(10, 10);
         EndDrawing();
     }
+
 
     CloseWindow();
     return 0;
