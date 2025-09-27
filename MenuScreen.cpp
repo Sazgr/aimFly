@@ -17,27 +17,22 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     const Color ACCENT_MEDIUM_COLOR = hexToColor("#B9C9C7", 1.0f);
     const Color ACCENT_DARK_COLOR = hexToColor("#82858A", 1.0f);
 
-    int centerX = scaledWidth / 2;
-    int centerY = scaledHeight / 2;
+    int centerX = offsetX + scaledWidth / 2; // new top left for 16:9 (0,0)
+    int centerY = offsetY + scaledHeight / 2;
 
-    rlViewport(offsetX, offsetY, scaledWidth, scaledHeight);
-
-    DrawRectangle(0, 0, scaledWidth, scaledHeight, BACKGROUND_COLOR);
+    DrawRectangle(offsetX, offsetY, scaledWidth, scaledHeight, BACKGROUND_COLOR);
     
-    DrawRectangleGradientH(0, 0, SCL(440), scaledHeight, hexToColor("#273A3B", 1.0f), BACKGROUND_COLOR);
+    DrawRectangleGradientH(offsetX, offsetY, SCL(440), scaledHeight, hexToColor("#273A3B", 1.0f), BACKGROUND_COLOR);
     
+    DrawRectangle(offsetX, offsetY, SCL(100), SCL(100), ACCENT_LIGHT_COLOR);
+    DrawRectangle(offsetX, offsetY + SCL(100), SCL(100), SCL(100), PRIMARY_COLOR);
     
     Vector2 mousePos = input.getMousePosition();
-    mousePos.x -= offsetX; 
-    mousePos.y -= offsetY;
-    
     bool isClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
-    
-    
+
     int playButtonY = centerY - SCL(20);
     int exitButtonY = centerY + SCL(40);
 
-    
     if (UIComponents::drawPlayButton(centerX, playButtonY, mousePos, isClicked, PRIMARY_COLOR, ACCENT_LIGHT_COLOR, BACKGROUND_COLOR, aspectScale)) {
         return MenuAction::START_3D;
     }
@@ -66,6 +61,5 @@ Color MenuScreen::hexToColor(const char* hex, float opacity) {
 }
 
 bool MenuScreen::isPointInRect(Vector2 point, Rectangle rect) {
-    return (point.x >= rect.x && point.x <= rect.x + rect.width &&
-            point.y >= rect.y && point.y <= rect.y + rect.height);
+    return (point.x >= rect.x && point.x <= rect.x + rect.width && point.y >= rect.y && point.y <= rect.y + rect.height);
 }
