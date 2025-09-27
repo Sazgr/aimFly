@@ -20,8 +20,8 @@
 #include <vector>
 
 int main() {
-    constexpr int NativeWidth = 1920;
-    constexpr int NativeHeight = 1080;
+    constexpr int NATIVE_WIDTH = 1920;
+    constexpr int NATIVE_HEIGHT = 1000;
 
     float sensitivity = 0.19f;
     float sensitivityConstant = 0.00122f;
@@ -31,23 +31,23 @@ int main() {
     int hits = 0;
     Timer timer;
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE); // Multi Sampling Anti Aliasing 4x
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE);
 
     InitWindow(0, 0, "aimfly");
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
 
-    RenderTexture2D aspectScreen = LoadRenderTexture(NativeWidth, NativeHeight);
+    RenderTexture2D aspectScreen = LoadRenderTexture(NATIVE_WIDTH, NATIVE_HEIGHT);
     SetTextureFilter(aspectScreen.texture, TEXTURE_FILTER_BILINEAR);
 
-    float aspectScale = static_cast<float>(screenWidth) / static_cast<float>(NativeWidth);
-    int scaledWidth = static_cast<int>(NativeWidth * aspectScale);
-    int scaledHeight = static_cast<int>(NativeHeight * aspectScale);
-
-    if (scaledHeight > screenHeight) { // in case scaled height is greater than the actual screen height; adjust by height
-        aspectScale = static_cast<float>(screenWidth) / static_cast<float>(NativeHeight);
-        scaledWidth = static_cast<int>(NativeWidth * aspectScale);
-        scaledHeight = static_cast<int>(NativeHeight * aspectScale);
+    float aspectScale = static_cast<float>(screenWidth) / static_cast<float>(NATIVE_WIDTH);
+    int scaledWidth = static_cast<int>(NATIVE_WIDTH * aspectScale);
+	int scaledHeight = static_cast<int>(NATIVE_HEIGHT * aspectScale);
+	
+    if (scaledHeight > screenHeight) {
+        aspectScale = static_cast<float>(screenHeight) / static_cast<float>(NATIVE_HEIGHT);
+        scaledWidth = static_cast<int>(NATIVE_WIDTH * aspectScale);
+        scaledHeight = static_cast<int>(NATIVE_HEIGHT * aspectScale);
     }
 
     const int offsetX = (screenWidth - scaledWidth) / 2;
@@ -58,7 +58,6 @@ int main() {
     InitAudioDevice();
     Sound shootSound = LoadSound("assets\\ghost\\shoot.mp3");
 
-    // Camera setup
     Camera camera = {0};
     camera.position = {0.0f, 0.0f, 0.0f};
     camera.target = {0.0f, 0.0f, -1.0f};
@@ -89,7 +88,7 @@ int main() {
     Vector3 position = {0.0f, 0.0f, 0.0f};
 
     std::vector<SphereTarget> sphereTargets{};
-    sphereTargets.reserve(10); // reserve so targets dont get moved, invalidating GPU handles
+    sphereTargets.reserve(10);
     sphereTargets.emplace_back(Vector3{8.0f, 0.0f, 0.0f}, 0.3f);
     sphereTargets.emplace_back(Vector3{8.0f, 1.0f, 0.0f}, 0.3f);
     sphereTargets.emplace_back(Vector3{8.0f, 0.0f, 1.0f}, 0.3f);
@@ -107,7 +106,7 @@ int main() {
     bool cursorEnabled = false;
     SetTargetFPS(400);
 
-    while (!WindowShouldClose()) { // detect window close button
+    while (!WindowShouldClose()) {
         Vector2 mouseDelta = GetMouseDelta();
 
         yaw += mouseDelta.x * sensitivity * sensitivityConstant;
@@ -134,14 +133,12 @@ int main() {
         camera.target = Vector3Add(camera.position, forward);
         camera.up = {0.0f, 1.0f, 0.0f};
 
-        //toggle cursor on escape key
         if (IsKeyPressed(KEY_ESCAPE)) {
             EnableCursor();
             cursorEnabled = true;
             ToggleFullscreen();
         }
 
-        //if user clicks inside window, hide cursor again
         if (cursorEnabled && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             DisableCursor();
             cursorEnabled = false;
@@ -149,7 +146,7 @@ int main() {
         }
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            PlaySound(shootSound); // play sound on click
+            PlaySound(shootSound);
             ++shots;
             for (int i = 0; i < sphereTargets.size(); ++i) {
                 if (hitscan(camera.position, forward, sphereTargets[i])) {
@@ -171,11 +168,6 @@ int main() {
         }
 
         BeginTextureMode(aspectScreen);
-            ClearBackground(BLACK);
-        EndTextureMode();
-
-        BeginDrawing();
-
             ClearBackground(SKYBLUE);
 
             BeginMode3D(camera);
@@ -214,8 +206,8 @@ int main() {
 
             EndMode3D();
 
-            int centerX = screenWidth / 2;
-            int centerY = screenHeight / 2;
+            int centerX = NATIVE_WIDTH / 2;
+            int centerY = NATIVE_HEIGHT / 2;
             int size = 10;
             int thickness = 2;
 
@@ -230,8 +222,18 @@ int main() {
             DrawText((std::string{"Score: "} + std::to_string(score)).c_str(), 40, 40, 20, BLACK);
             DrawText((std::string{"Accuracy: "} + std::to_string(shots == 0 ? 0 : hits * 100 / shots) + "%").c_str(), 40, 80, 20, BLACK);
             DrawText((std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), 40, 120, 20, BLACK);
-            DrawFPS(10, 10);
 
+        EndTextureMode();
+
+        BeginDrawing();
+            ClearBackground(BLACK);
+            
+            Rectangle sourceRect = {0.0f, 0.0f, static_cast<float>(NATIVE_WIDTH), static_cast<float>(-NATIVE_HEIGHT)};
+            Rectangle destRect = {static_cast<float>(offsetX), static_cast<float>(offsetY), static_cast<float>(scaledWidth), static_cast<float>(scaledHeight)};
+            
+            DrawTexturePro(aspectScreen.texture, sourceRect, destRect, Vector2{0, 0}, 0.0f, WHITE);
+            
+            DrawFPS(10, 10);
         EndDrawing();
     }
 
