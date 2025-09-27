@@ -31,7 +31,7 @@ int main() {
     int hits = 0;
     Timer timer;
 
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_UNDECORATED);
 
     InitWindow(0, 0, "aimfly");
     const int screenWidth = GetScreenWidth();
