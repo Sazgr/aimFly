@@ -21,7 +21,7 @@
 
 int main() {
     constexpr int NATIVE_WIDTH = 1920;
-    constexpr int NATIVE_HEIGHT = 1000;
+    constexpr int NATIVE_HEIGHT = 1080;
 
     float sensitivity = 0.19f;
     float sensitivityConstant = 0.00122f;
