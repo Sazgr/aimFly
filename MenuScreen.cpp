@@ -24,7 +24,7 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
 
     DrawRectangle(0, 0, scaledWidth, scaledHeight, BACKGROUND_COLOR);
     
-    DrawRectangleGradientH(0, 0, SCL(440), scaledHeight, hexToColor("#09B58A", 0.1f), BACKGROUND_COLOR);
+    DrawRectangleGradientH(0, 0, SCL(440), scaledHeight, hexToColor("#273A3B", 1.0f), BACKGROUND_COLOR);
     
     
     Vector2 mousePos = input.getMousePosition();
