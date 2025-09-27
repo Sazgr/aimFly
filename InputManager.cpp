@@ -1,4 +1,4 @@
-#include "InputManager.h"
+#include "inputmanager.h"
 
 void InputManager::update() {
     mouseDelta = GetMouseDelta();

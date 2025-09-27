@@ -10,9 +10,9 @@
 #include "hitscan.h"
 #include "timer.h"
 #include "weapon.h"
-#include "InputManager.h"
-#include "GameState.h"
-#include "MenuScreen.h"
+#include "inputmanager.h"
+#include "gamestate.h"
+#include "menuscreen.h"
 
 #include "raylib.h"
 #include "raymath.h"
@@ -187,7 +187,11 @@ int main() {
             
             if (stateManager.isState(GameState::MENU)) {
                 // handle menu rendering and clicking
-                MenuAction action = menuScreen.render(screenWidth, screenHeight, offsetX, offsetY, scaledWidth, scaledHeight, input);
+                MenuAction action = menuScreen.render(
+                    screenWidth, screenHeight, offsetX, offsetY, 
+                    scaledWidth, scaledHeight, input,
+                    NATIVE_WIDTH, NATIVE_HEIGHT 
+                );
                 
                 // process menu actions
                 if (action == MenuAction::START_3D) {
