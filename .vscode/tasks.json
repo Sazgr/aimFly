@@ -16,6 +16,8 @@
                 "${workspaceFolder}/main.cpp",
                 "${workspaceFolder}/hitscan.cpp",
                 "${workspaceFolder}/InputManager.cpp",
+                "${workspaceFolder}/MenuScreen.cpp",    
+                "${workspaceFolder}/UIComponents.cpp",  
 
                 "-L", "C:/raylib/raylib/src",
                 "-lraylib",

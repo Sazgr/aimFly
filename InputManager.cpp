@@ -4,7 +4,7 @@ void InputManager::update() {
     mouseDelta = GetMouseDelta();
     mousePosition = GetMousePosition();
 
-    int keysToCheck[] = {KEY_W, KEY_A, KEY_S, KEY_D, KEY_ESCAPE}; // keys to check
+    int keysToCheck[] = {KEY_W, KEY_A, KEY_S, KEY_D, KEY_ESCAPE, KEY_ENTER}; // keys to check
     for (int key : keysToCheck) updateKey(key);
 
     int mouseButtons[] = {MOUSE_LEFT_BUTTON, MOUSE_RIGHT_BUTTON}; // mouse things to check
