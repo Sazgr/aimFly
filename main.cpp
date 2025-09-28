@@ -13,6 +13,7 @@
 #include "inputmanager.h"
 #include "gamestate.h"
 #include "menuscreen.h"
+#include "uicomponents.h"
 
 #include "raylib.h"
 #include "raymath.h"
@@ -41,7 +42,7 @@ int main() {
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
 
-    // 16:9 aspect ratio scaling - prioritize width fitting
+    // 16:9 aspect ratio scaling 
     float screenAspect = (float)screenWidth / screenHeight;
     int scaledWidth, scaledHeight, offsetX, offsetY;
     
@@ -87,6 +88,11 @@ int main() {
     );
     shader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(shader, "normalMap");
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+
+   Shader gradientShader = LoadShader(0, "assets/shaders/glsl330/gradient.fs");
+    int locStart = GetShaderLocation(gradientShader, "startColor");
+    int locEnd   = GetShaderLocation(gradientShader, "endColor");
+    int locVertical = GetShaderLocation(gradientShader, "vertical");
 
     Vector3 lightPosition = {0.0f, 4.0f, 0.0f};
     int lightPosLoc = GetShaderLocation(shader, "lightPos");
@@ -205,7 +211,8 @@ int main() {
                 MenuAction action = menuScreen.render(
                     screenWidth, screenHeight, offsetX, offsetY, 
                     scaledWidth, scaledHeight, input,
-                    NATIVE_WIDTH, NATIVE_HEIGHT 
+                    NATIVE_WIDTH, NATIVE_HEIGHT,
+                    gradientShader
                 );
                 
                 // process menu actions
@@ -299,6 +306,10 @@ int main() {
     }
 
     UnloadRenderTexture(gameTexture);
+    UnloadSound(shootSound);
+    CloseAudioDevice();
+    UnloadShader(shader);
+    UnloadShader(gradientShader);
     CloseWindow();
     return 0;
 }
