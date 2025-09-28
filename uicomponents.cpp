@@ -1,4 +1,4 @@
-#include "UIComponents.h"
+#include "uicomponents.h"
 #include "raylib.h"
 #include <cstring> 
 
