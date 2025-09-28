@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
-#include "InputManager.h"
-#include "UIComponents.h"
+#include "inputmanager.h"
+#include "uicomponents.h"
 
 enum class MenuAction {
     NONE,
