@@ -17,5 +17,5 @@ private:
 public:
     MenuAction render(int screenWidth, int screenHeight, int offsetX, int offsetY, 
                       int scaledWidth, int scaledHeight, InputManager& input, 
-                      int nativeWidth, int nativeHeight);
+                      int nativeWidth, int nativeHeight, Shader& gradientShader);
 };

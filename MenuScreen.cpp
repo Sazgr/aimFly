@@ -6,17 +6,17 @@
 #include <cstdlib>
 #include <algorithm>
 
-
-
-MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight) {
+MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader) {
     float aspectScale = (float)scaledWidth / (float)nativeWidth;
     
     #define SCL(val) ((int)((float)(val) * aspectScale))
 
     const Color BACKGROUND_COLOR = hexToColor("#2A2D32", 1.0f);
     const Color PRIMARY_COLOR_100 = hexToColor("#09B58A", 1.0f);
+    const Color PRIMARY_COLOR_10 = hexToColor("#09B58A", 0.1f);
     const Color ACCENT_LIGHT_COLOR_100 = hexToColor("#E4F4F4", 1.0f);
     const Color ACCENT_LIGHT_COLOR_80 = hexToColor("#E4F4F4", 0.8f);
+    const Color ACCENT_LIGHT_COLOR_40 = hexToColor("#E4F4F4", 0.4f);
     const Color ACCENT_MEDIUM_COLOR = hexToColor("#B9C9C7", 1.0f);
     const Color ACCENT_DARK_COLOR = hexToColor("#82858A", 1.0f);
 
@@ -24,8 +24,14 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     int centerY = offsetY + scaledHeight / 2;
 
     DrawRectangle(offsetX, offsetY, scaledWidth, scaledHeight, BACKGROUND_COLOR); // background
-    DrawRectangleGradientH(offsetX, offsetY, SCL(440), scaledHeight, hexToColor("#273A3B", 1.0f), hexToColor("#273A3B", 0.0f)); // background primary accent gradient
-
+   
+    UIComponents::drawGradientRect( // background primary accent gradient
+        gradientShader, 
+        Rectangle{ (float)offsetX, (float)offsetY, (float)SCL(500), (float)scaledHeight },
+        hexToColor("#273A3B", 1.0f),
+        BACKGROUND_COLOR, 
+        false
+    );
 
     DrawRectangle(offsetX + SCL(40), offsetY + SCL(20), SCL(726), SCL(4), ACCENT_LIGHT_COLOR_80); // top accent bar
     DrawTriangle(
@@ -34,10 +40,22 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
         Vector2{(float)offsetX + SCL(766), (float)offsetY + SCL(24)},         
         ACCENT_LIGHT_COLOR_80
     );
-    DrawRectangleGradientH(offsetX + SCL(766), offsetY + SCL(20), SCL(1114), SCL(30), ACCENT_LIGHT_COLOR_80, hexToColor("#727A7B", 1.0f));
+    UIComponents::drawGradientRect(
+        gradientShader, 
+        Rectangle{ (float)offsetX + SCL(766), (float)offsetY + SCL(20), (float)SCL(1114), (float)SCL(30) },
+        ACCENT_LIGHT_COLOR_80,
+        ACCENT_LIGHT_COLOR_40, 
+        false
+    );
 
-    DrawRectangle(offsetX + SCL(40), offsetY + SCL(40), SCL(10), SCL(200), ACCENT_LIGHT_COLOR_100);
-    DrawRectangleGradientH(offsetX + SCL(50), offsetY + SCL(40), SCL(600), SCL(200), hexToColor("#16846B", 1.0f), hexToColor("#16846B", 0.0f));
+    DrawRectangle(offsetX + SCL(40), offsetY + SCL(40), SCL(10), SCL(200), ACCENT_LIGHT_COLOR_100); // title gradient vertical start
+    UIComponents::drawGradientRect( // title gradient backing
+        gradientShader, 
+        Rectangle{ (float)offsetX + SCL(50), (float)offsetY + SCL(40), (float)SCL(600), (float)SCL(200) },
+        hexToColor("#16846B", 1.0f),
+        hexToColor("#16846B", 0.0f), 
+        false
+    );
 
     
     Vector2 mousePos = input.getMousePosition();

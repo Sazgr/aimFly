@@ -89,6 +89,11 @@ int main() {
     shader.locs[SHADER_LOC_MAP_NORMAL] = GetShaderLocation(shader, "normalMap");
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
 
+   Shader gradientShader = LoadShader(0, "assets/shaders/glsl330/gradient.fs");
+    int locStart = GetShaderLocation(gradientShader, "startColor");
+    int locEnd   = GetShaderLocation(gradientShader, "endColor");
+    int locVertical = GetShaderLocation(gradientShader, "vertical");
+
     Vector3 lightPosition = {0.0f, 4.0f, 0.0f};
     int lightPosLoc = GetShaderLocation(shader, "lightPos");
 
@@ -206,7 +211,8 @@ int main() {
                 MenuAction action = menuScreen.render(
                     screenWidth, screenHeight, offsetX, offsetY, 
                     scaledWidth, scaledHeight, input,
-                    NATIVE_WIDTH, NATIVE_HEIGHT 
+                    NATIVE_WIDTH, NATIVE_HEIGHT,
+                    gradientShader
                 );
                 
                 // process menu actions
@@ -303,6 +309,7 @@ int main() {
     UnloadSound(shootSound);
     CloseAudioDevice();
     UnloadShader(shader);
+    UnloadShader(gradientShader);
     CloseWindow();
     return 0;
 }

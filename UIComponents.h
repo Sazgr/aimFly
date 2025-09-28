@@ -19,4 +19,6 @@ public:
 
     static bool drawButton(const char* text, int centerX, int centerY, int width, int height, 
                            Vector2 mousePos, bool isClicked, Color normalColor, Color hoverColor, Color textColor, float aspectScale);
+    
+    static void drawGradientRect(Shader shader, Rectangle rect, Color c1, Color c2, bool vertical);
 };
