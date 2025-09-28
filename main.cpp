@@ -13,6 +13,7 @@
 #include "inputmanager.h"
 #include "gamestate.h"
 #include "menuscreen.h"
+#include "uicomponents.h"
 
 #include "raylib.h"
 #include "raymath.h"
@@ -41,7 +42,7 @@ int main() {
     const int screenWidth = GetScreenWidth();
     const int screenHeight = GetScreenHeight();
 
-    // 16:9 aspect ratio scaling - prioritize width fitting
+    // 16:9 aspect ratio scaling 
     float screenAspect = (float)screenWidth / screenHeight;
     int scaledWidth, scaledHeight, offsetX, offsetY;
     
@@ -299,6 +300,9 @@ int main() {
     }
 
     UnloadRenderTexture(gameTexture);
+    UnloadSound(shootSound);
+    CloseAudioDevice();
+    UnloadShader(shader);
     CloseWindow();
     return 0;
 }

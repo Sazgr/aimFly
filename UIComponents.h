@@ -3,6 +3,10 @@
 
 class UIComponents {
 private:
+    static Shader gradientShader;
+    static int color1Loc;
+    static int color2Loc;
+
     static bool drawButtonCore(const char* text, int centerX, int centerY, int width, int height, 
                                Vector2 mousePos, bool isClicked, Color normalColor, Color hoverColor, Color textColor, float aspectScale);
 

@@ -1,5 +1,6 @@
-#include "UIComponents.h"
+#include "uicomponents.h"
 #include "raylib.h"
+#include "raymath.h"
 #include <cstring> 
 
 static bool isPointInRect(Vector2 point, Rectangle rect) {
