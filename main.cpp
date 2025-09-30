@@ -220,8 +220,8 @@ int main() {
 
                     BeginMode3D(camera);
                         BeginShaderMode(shader);
-                            DrawCube(Vector3{3.0f, -4.0f, 0.0f}, 30.0, 2.0, 20.0, GRAY);
-                            DrawCube(Vector3{13.0f, 4.0f, 0.0f}, 2.0, 14.0, 10.0, GRAY);
+                            DrawCube(Vector3{0.0f, -4.0f, 0.0f}, 54.0, 2.0, 20.0, GRAY);
+                            DrawCube(Vector3{25.0f, 4.0f, 0.0f}, 2.0, 14.0, 20.0, GRAY);
                         EndShaderMode();
 
                         task.draw();
