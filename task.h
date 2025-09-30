@@ -29,14 +29,14 @@ public:
 		} else if (taskId == TaskId::STRAFESHOT) {
 			targets.reserve(10);
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 0.0f}, 0.4f);
-			targets[0].velocity = Vector3{0, 0, 0.015f};
+			targets[0].velocity = Vector3{0, 0, 0.02f};
 			for (int i = 0; i < targets.size(); ++i) {
 				targets[i].addShader(shader);
 			}
 		} else if (taskId == TaskId::HEADSHOT) {
 			targets.reserve(10);
-			targets.emplace_back(TargetType::BODY, Vector3{8.0f, 0.0f, 0.0f}, 0.3f);
-			targets[0].velocity = Vector3{0, 0, 0.015f};
+			targets.emplace_back(TargetType::BODY, Vector3{20.0f, 0.0f, 0.0f}, 0.3f);
+			targets[0].velocity = Vector3{0, 0, 0.02f};
 			for (int i = 0; i < targets.size(); ++i) {
 				targets[i].addShader(shader);
 			}
