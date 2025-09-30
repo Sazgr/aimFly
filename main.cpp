@@ -10,7 +10,7 @@
 #include "hitscan.h"
 #include "inputmanager.h"
 #include "menuscreen.h"
-#include "spheretarget.h"
+#include "target.h"
 #include "task.h"
 #include "timer.h"
 #include "uicomponents.h"
@@ -107,7 +107,7 @@ int main() {
 
     Vector3 position = {0.0f, 0.0f, 0.0f};
 
-	Task task(TaskId::STRAFESHOT, shader);
+	Task task(TaskId::HEADSHOT, shader);
 
     bool cursorEnabled = false;
     SetTargetFPS(144);
