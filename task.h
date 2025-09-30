@@ -9,6 +9,7 @@
 enum class TaskId {
     NONE,
     GRIDSHOT,
+	STRAFESHOT,
 };
 
 class Task {
@@ -24,6 +25,31 @@ public:
 			for (int i = 0; i < targets.size(); ++i) {
 				targets[i].addShader(shader);
 			}
+		} else {
+			targets.reserve(10);
+			targets.emplace_back(Vector3{8.0f, 0.0f, 0.0f}, 0.4f);
+			targets[0].velocity = Vector3{0, 0, 0.015f};
+			for (int i = 0; i < targets.size(); ++i) {
+				targets[i].addShader(shader);
+			}
+		}
+	}
+	
+	void tick() {
+		if (taskId == TaskId::GRIDSHOT) {
+			; //no processing needed
+		} else if (taskId == TaskId::STRAFESHOT) {
+			int turnChance = 50;
+			if ((targets[0].position.z > 4 && targets[0].velocity.z > 0) || (targets[0].position.z < -4 && targets[0].velocity.z < 0)) {
+				turnChance = 25 - 15 * abs(targets[0].position.z) >= 5; //target heading away from center
+			}
+			if ((targets[0].position.z > 4 && targets[0].velocity.z < 0) || (targets[0].position.z < -4 && targets[0].velocity.z > 0)) {
+				turnChance = 100; //target going back to center
+			}
+			if (std::rand() % 30 == 0) {
+				targets[0].velocity.z = -targets[0].velocity.z;
+			}
+			targets[0].position = Vector3Add(targets[0].position, targets[0].velocity);
 		}
 	}
 	
@@ -40,6 +66,9 @@ public:
 			target.position.y = newY;
 			target.position.z = newZ;
 			targetPresent[newY + 1][newZ + 1] = true;
+		} else if (taskId == TaskId::STRAFESHOT) {
+			int newZ = (std::rand() % 7) - 3;
+			target.position.z = newZ;
 		}
 	}
 	

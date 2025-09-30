@@ -107,7 +107,7 @@ int main() {
 
     Vector3 position = {0.0f, 0.0f, 0.0f};
 
-	Task task(TaskId::GRIDSHOT, shader);
+	Task task(TaskId::STRAFESHOT, shader);
 
     bool cursorEnabled = false;
     SetTargetFPS(144);
@@ -155,6 +155,8 @@ int main() {
             if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(right, speed));
             if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(right, speed));
 
+			task.tick();
+			
             // shooting
             if (input.isMousePressed(MOUSE_LEFT_BUTTON)) {
                 PlaySound(shootSound);
