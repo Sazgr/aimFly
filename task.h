@@ -73,7 +73,7 @@ public:
 		}
 	}
 	
-	void processHit(Target& target, int hitType) {
+	bool processHit(Target& target, int hitType, int& score) {
 		if (taskId == TaskId::GRIDSHOT) {
 			int newY = (std::rand() % 3) - 1;
 			int newZ = (std::rand() % 3) - 1;
@@ -86,16 +86,22 @@ public:
 			target.position.y = newY;
 			target.position.z = newZ;
 			targetPresent[newY + 1][newZ + 1] = true;
+			return true;
 		} else if (taskId == TaskId::STRAFESHOT) {
 			int newZ = (std::rand() % 7) - 3;
 			target.position.z = newZ;
+			return true;
 		} else if (taskId == TaskId::HEADSHOT) {
 			target.health -= (hitType == HEADSHOT ? 4 : 1);
 			if (target.health <= 0) {
 				target.health = 4;
 				int newZ = (std::rand() % 7) - 3;
 				target.position.z = newZ;
+				return true;
 			}
+			return false;
+		} else {
+			assert(false);
 		}
 	}
 	
