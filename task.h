@@ -73,7 +73,7 @@ public:
 		}
 	}
 	
-	void processHit(Target& target) {
+	void processHit(Target& target, int hitType) {
 		if (taskId == TaskId::GRIDSHOT) {
 			int newY = (std::rand() % 3) - 1;
 			int newZ = (std::rand() % 3) - 1;
@@ -90,8 +90,12 @@ public:
 			int newZ = (std::rand() % 7) - 3;
 			target.position.z = newZ;
 		} else if (taskId == TaskId::HEADSHOT) {
-			int newZ = (std::rand() % 7) - 3;
-			target.position.z = newZ;
+			target.health -= (hitType == HEADSHOT ? 4 : 1);
+			if (target.health <= 0) {
+				target.health = 4;
+				int newZ = (std::rand() % 7) - 3;
+				target.position.z = newZ;
+			}
 		}
 	}
 	
