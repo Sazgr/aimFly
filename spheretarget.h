@@ -27,6 +27,7 @@ public:
 	}
 	
 	Vector3 position;
+	Vector3 velocity;
 	float radius;
 	Model model;
 };

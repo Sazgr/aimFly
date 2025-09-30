@@ -13,6 +13,7 @@
 #include "inputmanager.h"
 #include "gamestate.h"
 #include "menuscreen.h"
+#include "task.h"
 #include "uicomponents.h"
 
 #include "raylib.h"
@@ -106,20 +107,7 @@ int main() {
 
     Vector3 position = {0.0f, 0.0f, 0.0f};
 
-    std::vector<SphereTarget> sphereTargets{};
-    sphereTargets.reserve(10);
-    sphereTargets.emplace_back(Vector3{8.0f, 0.0f, 0.0f}, 0.3f);
-    sphereTargets.emplace_back(Vector3{8.0f, 1.0f, 0.0f}, 0.3f);
-    sphereTargets.emplace_back(Vector3{8.0f, 0.0f, 1.0f}, 0.3f);
-    for (int i = 0; i < sphereTargets.size(); ++i) {
-        sphereTargets[i].addShader(shader);
-    }
-
-    bool targetPresent[3][3]{
-        {0, 1, 0},
-        {0, 1, 1},
-        {0, 0, 0}
-    };
+	Task task(TaskId::STRAFESHOT, shader);
 
     bool cursorEnabled = false;
     SetTargetFPS(144);
@@ -167,25 +155,17 @@ int main() {
             if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(right, speed));
             if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(right, speed));
 
+			task.tick();
+			
             // shooting
             if (input.isMousePressed(MOUSE_LEFT_BUTTON)) {
                 PlaySound(shootSound);
                 ++shots;
-                for (int i = 0; i < sphereTargets.size(); ++i) {
-                    if (hitscan(camera.position, forward, sphereTargets[i])) {
+                for (int i = 0; i < task.targets.size(); ++i) {
+                    if (hitscan(camera.position, forward, task.targets[i])) {
                         ++hits;
                         score += 10;
-                        int newY = (std::rand() % 3) - 1;
-                        int newZ = (std::rand() % 3) - 1;
-                        while (targetPresent[newY + 1][newZ + 1]) {
-                            newY = (std::rand() % 3) - 1;
-                            newZ = (std::rand() % 3) - 1;
-                        }
-                        targetPresent[static_cast<int>(sphereTargets[i].position.y + 1.5)]
-                                    [static_cast<int>(sphereTargets[i].position.z + 1.5)] = false;
-                        sphereTargets[i].position.y = newY;
-                        sphereTargets[i].position.z = newZ;
-                        targetPresent[newY + 1][newZ + 1] = true;
+                        task.processHit(task.targets[i]);
                     }
                 }
             }
@@ -244,9 +224,7 @@ int main() {
                             DrawCube(Vector3{13.0f, 4.0f, 0.0f}, 2.0, 14.0, 10.0, GRAY);
                         EndShaderMode();
 
-                        for (int i = 0; i < sphereTargets.size(); ++i) {
-                            sphereTargets[i].draw();
-                        }
+                        task.draw();
 
                         float lightPos[3] = {lightPosition.x, lightPosition.y, lightPosition.z};
                         SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
