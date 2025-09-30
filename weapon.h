@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "raymath.h"
+
 #include <string>
 
 class Weapon {
