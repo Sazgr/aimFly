@@ -6,15 +6,15 @@
     #define GLSL_VERSION 100
 #endif
 
-#include "spheretarget.h"
-#include "hitscan.h"
-#include "timer.h"
-#include "weapon.h"
-#include "inputmanager.h"
 #include "gamestate.h"
+#include "hitscan.h"
+#include "inputmanager.h"
 #include "menuscreen.h"
+#include "spheretarget.h"
 #include "task.h"
+#include "timer.h"
 #include "uicomponents.h"
+#include "weapon.h"
 
 #include "raylib.h"
 #include "raymath.h"
