@@ -280,7 +280,7 @@ int main() {
                 
                 DrawText((std::string{"Score: "} + std::to_string(score)).c_str(), uiX, uiY, fontSize, BLACK);
                 DrawText((std::string{"Accuracy: "} + std::to_string(shots == 0 ? 0 : hits * 100 / shots) + "%").c_str(), uiX, uiY + lineSpacing, fontSize, BLACK);
-				DrawText((std::string{"Time per target: "} + std::to_string(timePerTarget) + "sec").c_str(), uiX, uiY + lineSpacing * 2, fontSize, BLACK);
+				DrawText((std::string{"Time per target: "} + std::to_string(static_cast<int>(timePerTarget * 1000)) + "ms").c_str(), uiX, uiY + lineSpacing * 2, fontSize, BLACK);
                 DrawText((std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), uiX, uiY + lineSpacing * 3, fontSize, BLACK);
 
                 DrawFPS(10, 10);
