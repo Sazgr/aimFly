@@ -7,7 +7,6 @@
 #endif
 
 #include "gamestate.h"
-#include "hitscan.h"
 #include "inputmanager.h"
 #include "menuscreen.h"
 #include "target.h"
@@ -29,7 +28,7 @@ int main() {
     constexpr int NATIVE_HEIGHT = 1080;
     constexpr float TARGET_ASPECT = 16.0f / 9.0f;
 
-    float sensitivity = 0.19f;
+    float sensitivity = 0.60f;
     float sensitivityConstant = 0.00122f;
 
     int score = 0;
@@ -162,10 +161,11 @@ int main() {
                 PlaySound(shootSound);
                 ++shots;
                 for (int i = 0; i < task.targets.size(); ++i) {
-                    if (hitscan(camera.position, forward, task.targets[i])) {
+					int hitType = task.targets[i].hitscan(camera.position, forward);
+                    if (hitType) {
                         ++hits;
                         score += 10;
-                        task.processHit(task.targets[i]);
+                        task.processHit(task.targets[i], hitType);
                     }
                 }
             }
