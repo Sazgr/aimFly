@@ -1,7 +1,7 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include "spheretarget.h"
+#include "target.h"
 
 #include <cassert>
 #include <vector>
@@ -10,6 +10,7 @@ enum class TaskId {
     NONE,
     GRIDSHOT,
 	STRAFESHOT,
+	HEADSHOT,
 };
 
 class Task {
@@ -19,15 +20,22 @@ public:
 		taskId = tid;
 		if (taskId == TaskId::GRIDSHOT) {
 			targets.reserve(10);
-			targets.emplace_back(Vector3{8.0f, 0.0f, 0.0f}, 0.3f);
-			targets.emplace_back(Vector3{8.0f, 1.0f, 0.0f}, 0.3f);
-			targets.emplace_back(Vector3{8.0f, 0.0f, 1.0f}, 0.3f);
+			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 0.0f}, 0.3f);
+			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 1.0f, 0.0f}, 0.3f);
+			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 1.0f}, 0.3f);
 			for (int i = 0; i < targets.size(); ++i) {
 				targets[i].addShader(shader);
 			}
-		} else {
+		} else if (taskId == TaskId::STRAFESHOT) {
 			targets.reserve(10);
-			targets.emplace_back(Vector3{8.0f, 0.0f, 0.0f}, 0.4f);
+			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 0.0f}, 0.4f);
+			targets[0].velocity = Vector3{0, 0, 0.015f};
+			for (int i = 0; i < targets.size(); ++i) {
+				targets[i].addShader(shader);
+			}
+		} else if (taskId == TaskId::HEADSHOT) {
+			targets.reserve(10);
+			targets.emplace_back(TargetType::BODY, Vector3{8.0f, 0.0f, 0.0f}, 0.3f);
 			targets[0].velocity = Vector3{0, 0, 0.015f};
 			for (int i = 0; i < targets.size(); ++i) {
 				targets[i].addShader(shader);
@@ -50,10 +58,22 @@ public:
 				targets[0].velocity.z = -targets[0].velocity.z;
 			}
 			targets[0].position = Vector3Add(targets[0].position, targets[0].velocity);
+		} else if (taskId == TaskId::HEADSHOT) {
+			int turnChance = 50;
+			if ((targets[0].position.z > 4 && targets[0].velocity.z > 0) || (targets[0].position.z < -4 && targets[0].velocity.z < 0)) {
+				turnChance = 25 - 15 * abs(targets[0].position.z) >= 5; //target heading away from center
+			}
+			if ((targets[0].position.z > 4 && targets[0].velocity.z < 0) || (targets[0].position.z < -4 && targets[0].velocity.z > 0)) {
+				turnChance = 100; //target going back to center
+			}
+			if (std::rand() % 30 == 0) {
+				targets[0].velocity.z = -targets[0].velocity.z;
+			}
+			targets[0].position = Vector3Add(targets[0].position, targets[0].velocity);
 		}
 	}
 	
-	void processHit(SphereTarget& target) {
+	void processHit(Target& target) {
 		if (taskId == TaskId::GRIDSHOT) {
 			int newY = (std::rand() % 3) - 1;
 			int newZ = (std::rand() % 3) - 1;
@@ -69,6 +89,9 @@ public:
 		} else if (taskId == TaskId::STRAFESHOT) {
 			int newZ = (std::rand() % 7) - 3;
 			target.position.z = newZ;
+		} else if (taskId == TaskId::HEADSHOT) {
+			int newZ = (std::rand() % 7) - 3;
+			target.position.z = newZ;
 		}
 	}
 	
@@ -78,7 +101,7 @@ public:
 		}
 	}
 	
-	std::vector<SphereTarget> targets{};
+	std::vector<Target> targets{};
 	TaskId taskId;
 	bool targetPresent[3][3]{
 		{0, 1, 0},
