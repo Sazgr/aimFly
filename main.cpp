@@ -34,6 +34,7 @@ int main() {
     int score = 0;
     int shots = 0;
     int hits = 0;
+	double timePerTarget = 0;
     Timer timer;
 
     SetConfigFlags(FLAG_WINDOW_UNDECORATED | FLAG_MSAA_4X_HINT);
@@ -157,15 +158,18 @@ int main() {
 			task.tick();
 			
             // shooting
-            if (input.isMousePressed(MOUSE_LEFT_BUTTON)) {
+            if (input.isMousePressed(MOUSE_LEFT_BUTTON) ||input.isKeyPressed(KEY_SPACE)) {
                 PlaySound(shootSound);
                 ++shots;
                 for (int i = 0; i < task.targets.size(); ++i) {
 					int hitType = task.targets[i].hitscan(camera.position, forward);
                     if (hitType) {
                         ++hits;
-                        score += 10;
-                        task.processHit(task.targets[i], hitType);
+                        bool targetKilled = task.processHit(task.targets[i], hitType, score);
+						if (targetKilled) {
+							score += 10;
+							timePerTarget = timer.elapsed() * 10 / score;
+						}
                     }
                 }
             }
@@ -276,7 +280,8 @@ int main() {
                 
                 DrawText((std::string{"Score: "} + std::to_string(score)).c_str(), uiX, uiY, fontSize, BLACK);
                 DrawText((std::string{"Accuracy: "} + std::to_string(shots == 0 ? 0 : hits * 100 / shots) + "%").c_str(), uiX, uiY + lineSpacing, fontSize, BLACK);
-                DrawText((std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), uiX, uiY + lineSpacing * 2, fontSize, BLACK);
+				DrawText((std::string{"Time per target: "} + std::to_string(timePerTarget) + "sec").c_str(), uiX, uiY + lineSpacing * 2, fontSize, BLACK);
+                DrawText((std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), uiX, uiY + lineSpacing * 3, fontSize, BLACK);
 
                 DrawFPS(10, 10);
             }
