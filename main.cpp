@@ -20,8 +20,16 @@
 #include "rlgl.h"
 #include "rlights.h"
 
+#include "assets/fonts/DOHYEON_REGULAR.h"
+#include "assets/fonts/ORBITRON_BOLD.h"
+
 #include <string>
 #include <vector>
+
+Font DOHYEON_REGULAR;
+Font ORBITRON_BOLD;
+
+void loadFonts();
 
 int main() {
     constexpr int NATIVE_WIDTH = 1920;
@@ -116,6 +124,8 @@ int main() {
     InputManager input;
     GameStateManager stateManager;
     MenuScreen menuScreen;
+
+    loadFonts();
 
     while (!WindowShouldClose()) {
         input.update();
@@ -294,13 +304,13 @@ int main() {
                 // ui positioned relative to 16:9 game area with scaling
                 int uiX = offsetX + (int)(40 * aspectScale);
                 int uiY = offsetY + (int)(40 * aspectScale);
-                int fontSize = (int)(20 * aspectScale);
+                float fontSize = (float)(20 * aspectScale);
                 int lineSpacing = (int)(40 * aspectScale);
-                
-                DrawText((std::string{"Score: "} + std::to_string(score)).c_str(), uiX, uiY, fontSize, BLACK);
-                DrawText((std::string{"Accuracy: "} + std::to_string(shots == 0 ? 0 : hits * 100 / shots) + "%").c_str(), uiX, uiY + lineSpacing, fontSize, BLACK);
-				DrawText((std::string{"Time per target: "} + std::to_string(static_cast<int>(timePerTarget * 1000)) + "ms").c_str(), uiX, uiY + lineSpacing * 2, fontSize, BLACK);
-                DrawText((std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), uiX, uiY + lineSpacing * 3, fontSize, BLACK);
+
+                DrawTextEx(DOHYEON_REGULAR, (std::string{"Score: "} + std::to_string(score)).c_str(), (Vector2){(float)uiX, (float)uiY}, fontSize, 0.0f, BLACK);
+                DrawTextEx(DOHYEON_REGULAR, (std::string{"Accuracy: "} + std::to_string(shots == 0 ? 0 : hits * 100 / shots) + "%").c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing}, fontSize, 0.0f, BLACK);
+                DrawTextEx(DOHYEON_REGULAR, (std::string{"Time per target: "} + std::to_string(static_cast<int>(timePerTarget * 1000)) + "ms").c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing * 2}, fontSize, 0.0f, BLACK);
+                DrawTextEx(DOHYEON_REGULAR, (std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing * 3}, fontSize, 0.0f, BLACK);
 
                 DrawFPS(10, 10);
             }
@@ -312,6 +322,19 @@ int main() {
     CloseAudioDevice();
     UnloadShader(shader);
     UnloadShader(gradientShader);
+    UnloadFont(DOHYEON_REGULAR);
+    UnloadFont(ORBITRON_BOLD);
     CloseWindow();
     return 0;
+}
+
+void loadFonts() {
+    DOHYEON_REGULAR = LoadFontFromMemory(".ttf", dohyeon_regular, sizeof(dohyeon_regular), 48, nullptr, 0);
+    ORBITRON_BOLD = LoadFontFromMemory(".ttf", orbitron_bold, sizeof(orbitron_bold), 48, nullptr, 0);
+
+    SetTextureFilter(DOHYEON_REGULAR.texture, TEXTURE_FILTER_BILINEAR);
+    SetTextureFilter(ORBITRON_BOLD.texture, TEXTURE_FILTER_BILINEAR);
+
+    GenTextureMipmaps(&DOHYEON_REGULAR.texture);
+    GenTextureMipmaps(&ORBITRON_BOLD.texture);
 }
