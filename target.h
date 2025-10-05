@@ -21,6 +21,7 @@ class Target {
 public:
 	Target(TargetType t, Vector3 pos, float sz) {
 		type = t;
+		hitType = MISS;
 		position = pos;
 		size = sz;
 		if (type == TargetType::SPHERE) {
@@ -52,12 +53,12 @@ public:
 	
 	void draw() {
 		if (type == TargetType::SPHERE) {
-			DrawModel(models[0], position, 1.0f, PINK);
+			DrawModel(models[0], position, 1.0f, SKYBLUE);
 		} else if (type == TargetType::BODY) {
-			DrawModel(models[0], position, 1.0f, PINK);
-			DrawModel(models[1], Vector3Add(position, Vector3{0.0f, - 2 * size, 0.0f}), 1.0f, PINK);
-			DrawModel(models[2], Vector3Add(position, Vector3{0.0f, - 4.5f * size, 0.0f}), 1.0f, PINK);
-			DrawModel(models[1], Vector3Add(position, Vector3{0.0f, - 4.5f * size, 0.0f}), 1.0f, PINK);
+			DrawModel(models[0], position, 1.0f, hitType == HEADSHOT ? YELLOW : SKYBLUE);
+			DrawModel(models[1], Vector3Add(position, Vector3{0.0f, - 2 * size, 0.0f}), 1.0f, hitType == BODYSHOT ? YELLOW : SKYBLUE);
+			DrawModel(models[2], Vector3Add(position, Vector3{0.0f, - 4.5f * size, 0.0f}), 1.0f, hitType == BODYSHOT ? YELLOW : SKYBLUE);
+			DrawModel(models[1], Vector3Add(position, Vector3{0.0f, - 4.5f * size, 0.0f}), 1.0f, hitType == BODYSHOT ? YELLOW : SKYBLUE);
 		}
 	}
 	
@@ -102,6 +103,8 @@ public:
 	Vector3 position;
 	Vector3 velocity;
 	float size;
+	int hitType;
+	double lastHit{0.0};
 	std::vector<Model> models;
 	TargetType type;
 	int health;

@@ -165,6 +165,8 @@ int main() {
                 for (int i = 0; i < task.targets.size(); ++i) {
 					int hitType = task.targets[i].hitscan(camera.position, forward);
                     if (hitType) {
+						task.targets[i].hitType = hitType;
+						task.targets[i].lastHit = timer.elapsed();
                         ++hits;
                         bool targetKilled = task.processHit(task.targets[i], hitType, score);
 						if (targetKilled) {
@@ -173,9 +175,19 @@ int main() {
 							score += 10;
 							timePerTarget = timer.elapsed() * 10 / score;
 						}
-                    }
+                    } else {
+						if (timer.elapsed() - task.targets[i].lastHit >= 0.1) {
+							task.targets[i].hitType = MISS;
+						}
+					}
                 }
-            }
+            } else {
+				for (int i = 0; i < task.targets.size(); ++i) {
+					if (timer.elapsed() - task.targets[i].lastHit >= 0.1) {
+						task.targets[i].hitType = MISS;
+					}
+				}
+			}
 
             // esc to return to menu
             if (input.isKeyPressed(KEY_ESCAPE)) {

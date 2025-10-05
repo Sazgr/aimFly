@@ -11,6 +11,7 @@ enum class TaskId {
     GRIDSHOT,
 	STRAFESHOT,
 	HEADSHOT,
+	PEEKSHOT,
 };
 
 class Task {
