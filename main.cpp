@@ -151,10 +151,14 @@ int main() {
 
             // movement
             float speed = 0.01f;
-            if (input.isKeyHeld(KEY_W)) camera.position = Vector3Add(camera.position, Vector3Scale(forward, speed));
-            if (input.isKeyHeld(KEY_S)) camera.position = Vector3Subtract(camera.position, Vector3Scale(forward, speed));
-            if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(right, speed));
-            if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(right, speed));
+			Vector3 walk_w = forward;
+			walk_w.y = 0;
+			walk_w = Vector3Normalize(walk_w);
+			Vector3 walk_d = Vector3CrossProduct(walk_w, Vector3{0, 1, 0});
+            if (input.isKeyHeld(KEY_W)) camera.position = Vector3Add(camera.position, Vector3Scale(walk_w, speed));
+            if (input.isKeyHeld(KEY_S)) camera.position = Vector3Subtract(camera.position, Vector3Scale(walk_w, speed));
+            if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(walk_d, speed));
+            if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(walk_d, speed));
 
 			task.tick();
 			
