@@ -28,7 +28,7 @@ int main() {
     constexpr int NATIVE_HEIGHT = 1080;
     constexpr float TARGET_ASPECT = 16.0f / 9.0f;
 
-    float sensitivity = 0.60f;
+    float sensitivity = 0.19f;
     float sensitivityConstant = 0.00122f;
 
     int score = 0;
@@ -68,6 +68,7 @@ int main() {
 
     InitAudioDevice();
     Sound shootSound = LoadSound("assets/ghost/shoot.mp3");
+	Sound killSound = LoadSound("assets/sounds/kill.mp3");
 
     // create render texture for 3D scene
     RenderTexture2D gameTexture = LoadRenderTexture(NATIVE_WIDTH, NATIVE_HEIGHT);
@@ -150,10 +151,14 @@ int main() {
 
             // movement
             float speed = 0.01f;
-            if (input.isKeyHeld(KEY_W)) camera.position = Vector3Add(camera.position, Vector3Scale(forward, speed));
-            if (input.isKeyHeld(KEY_S)) camera.position = Vector3Subtract(camera.position, Vector3Scale(forward, speed));
-            if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(right, speed));
-            if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(right, speed));
+			Vector3 walk_w = forward;
+			walk_w.y = 0;
+			walk_w = Vector3Normalize(walk_w);
+			Vector3 walk_d = Vector3CrossProduct(walk_w, Vector3{0, 1, 0});
+            if (input.isKeyHeld(KEY_W)) camera.position = Vector3Add(camera.position, Vector3Scale(walk_w, speed));
+            if (input.isKeyHeld(KEY_S)) camera.position = Vector3Subtract(camera.position, Vector3Scale(walk_w, speed));
+            if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(walk_d, speed));
+            if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(walk_d, speed));
 
 			task.tick();
 			
@@ -164,15 +169,29 @@ int main() {
                 for (int i = 0; i < task.targets.size(); ++i) {
 					int hitType = task.targets[i].hitscan(camera.position, forward);
                     if (hitType) {
+						task.targets[i].hitType = hitType;
+						task.targets[i].lastHit = timer.elapsed();
                         ++hits;
                         bool targetKilled = task.processHit(task.targets[i], hitType, score);
 						if (targetKilled) {
+							if (task.taskId == TaskId::HEADSHOT)
+								PlaySound(killSound);
 							score += 10;
 							timePerTarget = timer.elapsed() * 10 / score;
 						}
-                    }
+                    } else {
+						if (timer.elapsed() - task.targets[i].lastHit >= 0.1) {
+							task.targets[i].hitType = MISS;
+						}
+					}
                 }
-            }
+            } else {
+				for (int i = 0; i < task.targets.size(); ++i) {
+					if (timer.elapsed() - task.targets[i].lastHit >= 0.1) {
+						task.targets[i].hitType = MISS;
+					}
+				}
+			}
 
             // esc to return to menu
             if (input.isKeyPressed(KEY_ESCAPE)) {
@@ -280,7 +299,7 @@ int main() {
                 
                 DrawText((std::string{"Score: "} + std::to_string(score)).c_str(), uiX, uiY, fontSize, BLACK);
                 DrawText((std::string{"Accuracy: "} + std::to_string(shots == 0 ? 0 : hits * 100 / shots) + "%").c_str(), uiX, uiY + lineSpacing, fontSize, BLACK);
-				DrawText((std::string{"Time per target: "} + std::to_string(timePerTarget) + "sec").c_str(), uiX, uiY + lineSpacing * 2, fontSize, BLACK);
+				DrawText((std::string{"Time per target: "} + std::to_string(static_cast<int>(timePerTarget * 1000)) + "ms").c_str(), uiX, uiY + lineSpacing * 2, fontSize, BLACK);
                 DrawText((std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), uiX, uiY + lineSpacing * 3, fontSize, BLACK);
 
                 DrawFPS(10, 10);

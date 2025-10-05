@@ -11,6 +11,7 @@ enum class TaskId {
     GRIDSHOT,
 	STRAFESHOT,
 	HEADSHOT,
+	PEEKSHOT,
 };
 
 class Task {
@@ -18,28 +19,20 @@ public:
 	Task(TaskId tid, Shader& shader) {
 		assert(tid != TaskId::NONE);
 		taskId = tid;
+		targets.reserve(10);
 		if (taskId == TaskId::GRIDSHOT) {
-			targets.reserve(10);
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 0.0f}, 0.3f);
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 1.0f, 0.0f}, 0.3f);
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 1.0f}, 0.3f);
-			for (int i = 0; i < targets.size(); ++i) {
-				targets[i].addShader(shader);
-			}
 		} else if (taskId == TaskId::STRAFESHOT) {
-			targets.reserve(10);
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 0.0f}, 0.4f);
 			targets[0].velocity = Vector3{0, 0, 0.02f};
-			for (int i = 0; i < targets.size(); ++i) {
-				targets[i].addShader(shader);
-			}
 		} else if (taskId == TaskId::HEADSHOT) {
-			targets.reserve(10);
 			targets.emplace_back(TargetType::BODY, Vector3{20.0f, 0.0f, 0.0f}, 0.3f);
 			targets[0].velocity = Vector3{0, 0, 0.02f};
-			for (int i = 0; i < targets.size(); ++i) {
-				targets[i].addShader(shader);
-			}
+		}
+		for (int i = 0; i < targets.size(); ++i) {
+			targets[i].addShader(shader);
 		}
 	}
 	
