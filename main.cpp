@@ -28,7 +28,7 @@ int main() {
     constexpr int NATIVE_HEIGHT = 1080;
     constexpr float TARGET_ASPECT = 16.0f / 9.0f;
 
-    float sensitivity = 0.60f;
+    float sensitivity = 0.19f;
     float sensitivityConstant = 0.00122f;
 
     int score = 0;
@@ -68,6 +68,7 @@ int main() {
 
     InitAudioDevice();
     Sound shootSound = LoadSound("assets/ghost/shoot.mp3");
+	Sound killSound = LoadSound("assets/sounds/kill.mp3");
 
     // create render texture for 3D scene
     RenderTexture2D gameTexture = LoadRenderTexture(NATIVE_WIDTH, NATIVE_HEIGHT);
@@ -167,6 +168,8 @@ int main() {
                         ++hits;
                         bool targetKilled = task.processHit(task.targets[i], hitType, score);
 						if (targetKilled) {
+							if (task.taskId == TaskId::HEADSHOT)
+								PlaySound(killSound);
 							score += 10;
 							timePerTarget = timer.elapsed() * 10 / score;
 						}
