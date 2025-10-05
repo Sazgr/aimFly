@@ -13,11 +13,7 @@
                 "-I", "C:/raylib/raylib/src",
                 "-I", "${workspaceFolder}/lib/raylib/src",
 
-                "${workspaceFolder}/main.cpp",
-                "${workspaceFolder}/hitscan.cpp",
-                "${workspaceFolder}/inputmanager.cpp",
-                "${workspaceFolder}/menuscreen.cpp",    
-                "${workspaceFolder}/uicomponents.cpp",  
+                "${workspaceFolder}/*.cpp",
 
                 "-L", "C:/raylib/raylib/src",
                 "-lraylib",
