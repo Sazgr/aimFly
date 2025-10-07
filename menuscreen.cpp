@@ -1,39 +1,41 @@
+#include "color.h"
 #include "menuscreen.h"
 #include "uicomponents.h"
 #include "inputmanager.h"
 #include "rlgl.h"
 #include "raylib.h"
-#include <cstdlib>
 #include <algorithm>
+
+MenuScreen::MenuScreen() {
+	addButton(40, 342, 360, 65, "PRACTICE", true);
+	addButton(40, 442, 360, 65, "CALIBRATE", false);
+	addButton(40, 542, 360, 65, "SETTINGS", false);
+	addButton(40, 642, 360, 65, "CREDITS", false);
+	addButton(40, 742, 360, 65, "EXIT", false);
+	
+	addButton(442, 342, 360, 65, "BOTS", false);
+	addButton(442, 442, 360, 65, "TRACKING", false);
+	addButton(442, 542, 360, 65, "FLICKING", true);
+	addButton(442, 642, 360, 65, "MICRO", false);
+	addButton(442, 742, 360, 65, "REACTION", false);
+	addButton(442, 842, 360, 65, "HEADSHOT", false);
+}
+
+void MenuScreen::addButton(int buttonX, int buttonY, int width, int height, std::string buttonText, bool buttonSelected) {
+	buttons.emplace_back(buttonX, buttonY, width, height, buttonText, buttonSelected);
+}
 
 MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader) {
     float aspectScale = (float)scaledWidth / (float)nativeWidth;
     
-    #define SCL(val) ((int)((float)(val) * aspectScale))
-
-    const Color BACKGROUND_COLOR = hexToColor("#2A2D32", 1.0f);
-    const Color PRIMARY_COLOR_100 = hexToColor("#09B58A", 1.0f);
-    const Color PRIMARY_COLOR_10 = hexToColor("#09B58A", 0.1f);
-	
-	const Color GRAY_0_COLOR_100 = hexToColor("#5A6164", 1.0f);
-	
-	const Color GRAY_1_COLOR_100 = hexToColor("#82858A", 1.0f);
-	
-	const Color GRAY_2_COLOR_100 = hexToColor("#9A9DA2", 1.0f);
-	
-	const Color GRAY_3_COLOR_100 = hexToColor("#B9C9C7", 1.0f);
-    const Color GRAY_3_COLOR_80 = hexToColor("#B9C9C7", 0.8f);
-	
-    const Color GRAY_4_COLOR_100 = hexToColor("#E4F4F4", 1.0f);
-    const Color GRAY_4_COLOR_80 = hexToColor("#E4F4F4", 0.8f);
-    const Color GRAY_4_COLOR_40 = hexToColor("#E4F4F4", 0.4f);
+    #define SCL(val) ((float)(val) * aspectScale)
 
     int centerX = offsetX + scaledWidth / 2; // new top left for 16:9 (0,0)
     int centerY = offsetY + scaledHeight / 2;
 
     DrawRectangle(offsetX, offsetY, scaledWidth, scaledHeight, BACKGROUND_COLOR); // background
    
-    UIComponents::drawGradientRect( // background primary accent gradient
+    Gradient::drawGradientRect( // background primary accent gradient
         gradientShader, 
         Rectangle{ (float)offsetX, (float)offsetY, (float)SCL(500), (float)scaledHeight },
         hexToColor("#273A3B", 1.0f),
@@ -48,7 +50,7 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
         Vector2{(float)offsetX + SCL(766), (float)offsetY + SCL(24)},
         GRAY_4_COLOR_80
     );
-    UIComponents::drawGradientRect(
+    Gradient::drawGradientRect(
         gradientShader, 
         Rectangle{ (float)offsetX + SCL(766), (float)offsetY + SCL(20), (float)SCL(1114), (float)SCL(30) },
         GRAY_4_COLOR_80,
@@ -60,7 +62,7 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
 	DrawRectangle(offsetX + SCL(1767), offsetY + SCL(30), SCL(100), SCL(10), GRAY_3_COLOR_80);
 
     DrawRectangle(offsetX + SCL(40), offsetY + SCL(40), SCL(10), SCL(200), GRAY_4_COLOR_100); // title gradient vertical start
-    UIComponents::drawGradientRect( // title gradient backing
+    Gradient::drawGradientRect( // title gradient backing
         gradientShader, 
         Rectangle{ (float)offsetX + SCL(50), (float)offsetY + SCL(40), (float)SCL(600), (float)SCL(200) },
         hexToColor("#16846B", 1.0f),
@@ -69,7 +71,7 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     );
 	
 	DrawRectangle(offsetX + SCL(757), offsetY + SCL(109), SCL(200), SCL(2), GRAY_2_COLOR_100); // stat panel accent line
-	DrawLineEx(Vector2{static_cast<float>(offsetX + SCL(956)), static_cast<float>(offsetY + SCL(110))}, Vector2{static_cast<float>(offsetX + SCL(1018)), static_cast<float>(offsetY + SCL(170))}, 3.5f, GRAY_2_COLOR_100);
+	DrawLineEx(Vector2{static_cast<float>(offsetX + SCL(956)), static_cast<float>(offsetY + SCL(110))}, Vector2{static_cast<float>(offsetX + SCL(1018)), static_cast<float>(offsetY + SCL(170))}, 2.4f * aspectScale, GRAY_2_COLOR_100);
 	DrawRectangle(offsetX + SCL(1017), offsetY + SCL(169), SCL(800), SCL(2), GRAY_2_COLOR_100);
 	
 	DrawRectangle(offsetX + SCL(761), offsetY + SCL(219), SCL(4), SCL(4), GRAY_3_COLOR_80); // stat panel accent
@@ -113,7 +115,13 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
 	DrawRectangle(offsetX + SCL(270), offsetY + SCL(1068), SCL(100), SCL(6), GRAY_0_COLOR_100);
 	DrawRectangle(offsetX + SCL(400), offsetY + SCL(1068), SCL(100), SCL(6), GRAY_0_COLOR_100);
     
-    Vector2 mousePos = input.getMousePosition();
+	Vector2 mousePos = input.getMousePosition();
+	bool mouseClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
+	
+	for (Button& button : buttons) {
+		button.draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked);
+	};
+    /*
     bool isClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
 
     int playButtonY = centerY - SCL(20);
@@ -125,25 +133,11 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     
     if (UIComponents::drawExitButton(centerX, exitButtonY, mousePos, isClicked, GRAY_2_COLOR_100, GRAY_3_COLOR_80, GRAY_4_COLOR_80, aspectScale)) {
         return MenuAction::EXIT_GAME;
-    }
+    }*/
 
     #undef SCL
     
     return MenuAction::NONE;
-}
-
-Color MenuScreen::hexToColor(const char* hex, float opacity) {
-    if (hex[0] == '#') hex++;
-    
-    unsigned int hexValue = strtoul(hex, nullptr, 16);
-    
-    Color color;
-    color.r = (hexValue >> 16) & 0xFF;
-    color.g = (hexValue >> 8) & 0xFF;
-    color.b = hexValue & 0xFF;
-    color.a = (unsigned char)(255 * opacity);
-    
-    return color;
 }
 
 bool MenuScreen::isPointInRect(Vector2 point, Rectangle rect) {
