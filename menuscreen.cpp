@@ -69,7 +69,7 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     );
 	
 	DrawRectangle(offsetX + SCL(757), offsetY + SCL(109), SCL(200), SCL(2), GRAY_2_COLOR_100); // stat panel accent line
-	DrawLineEx(Vector2{offsetX + SCL(956), offsetY + SCL(110)}, Vector2{offsetX + SCL(1018), offsetY + SCL(170)}, 3.5f, GRAY_2_COLOR_100);
+	DrawLineEx(Vector2{static_cast<float>(offsetX + SCL(956)), static_cast<float>(offsetY + SCL(110))}, Vector2{static_cast<float>(offsetX + SCL(1018)), static_cast<float>(offsetY + SCL(170))}, 3.5f, GRAY_2_COLOR_100);
 	DrawRectangle(offsetX + SCL(1017), offsetY + SCL(169), SCL(800), SCL(2), GRAY_2_COLOR_100);
 	
 	DrawRectangle(offsetX + SCL(761), offsetY + SCL(219), SCL(4), SCL(4), GRAY_3_COLOR_80); // stat panel accent

@@ -296,7 +296,7 @@ int main() {
                 // crosshair - centered in the 16:9 viewport
                 int centerX = offsetX + scaledWidth / 2;
                 int centerY = offsetY + scaledHeight / 2;
-                DrawLineEx(Vector2{static_cast<float>(centerX - 10), static_cast<float>(centerY)},
+                DrawLineEx(Vector2{static_cast<float>(centerX - 10.0f), static_cast<float>(centerY)},
                         Vector2{static_cast<float>(centerX + 10), static_cast<float>(centerY)}, 2, BLACK);
                 DrawLineEx(Vector2{static_cast<float>(centerX), static_cast<float>(centerY - 10)},
                         Vector2{static_cast<float>(centerX), static_cast<float>(centerY + 10)}, 2, BLACK);
