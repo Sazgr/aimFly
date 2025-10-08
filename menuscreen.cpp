@@ -131,11 +131,11 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
         {"EXIT", MenuAction::EXIT}
     };
 
-    for (int i = 0; i < buttons.size(); i++) {
+    for (int i = 0; i < buttons.size(); i++) { // look here kelele!!!!!!!!!!!!!!!!!!!!
         buttons[i].isSelected = (i == selectedButtonIndex);
         
         if (buttons[i].draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
-            selectedButtonIndex = i;  // update selection on click
+            selectedButtonIndex = i;  // update selection on click (but this treats sub buttons as main buttons)
             
             auto it = buttonActions.find(buttons[i].text);
             if (it != buttonActions.end()) {
