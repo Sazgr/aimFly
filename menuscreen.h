@@ -20,6 +20,7 @@ class MenuScreen {
 private:
     bool isPointInRect(Vector2 point, Rectangle rect);
 	std::vector<Button> buttons;
+    int selectedButtonIndex = 0; // to track selected button
 
 public:
 	MenuScreen();

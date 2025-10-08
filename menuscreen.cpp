@@ -121,10 +121,6 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     
 	Vector2 mousePos = input.getMousePosition();
 	bool mouseClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
-	
-	for (Button& button : buttons) {
-		button.draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked);
-	};
 
     // map button text to action
     std::unordered_map<std::string, MenuAction> buttonActions = {
@@ -135,14 +131,21 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
         {"EXIT", MenuAction::EXIT}
     };
 
-    for (Button& button : buttons) { // process clicks
-        if (button.draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
-            auto it = buttonActions.find(button.text);
+    for (int i = 0; i < buttons.size(); i++) {
+        buttons[i].isSelected = (i == selectedButtonIndex);
+        
+        if (buttons[i].draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
+            selectedButtonIndex = i;  // update selection on click
+            
+            auto it = buttonActions.find(buttons[i].text);
             if (it != buttonActions.end()) {
                 return it->second;
             }
         }
     }
+
+
+
 
     #undef SCL    
     return MenuAction::PRACTICE; // default on load
