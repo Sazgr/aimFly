@@ -1,7 +1,6 @@
 #pragma once
 
 #include "raylib.h"
-
 #include <string>
 
 class Gradient {
@@ -17,13 +16,14 @@ public:
 class Button {
 public:
 	Button() {}
-	Button(int x, int y, int width, int height, std::string text, bool isSelected) {
+	Button(int x, int y, int width, int height, const std::string& text, bool isSelected, const Font* font = nullptr) {
 		this->x = x;
 		this->y = y;
 		this->width = width;
 		this->height = height;
 		this->text = text;
 		this->isSelected = isSelected;
+		this->fontPtr = font;
 	}
     bool draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos, bool mouseClicked);
 
@@ -34,4 +34,5 @@ public:
 	int height;
 	float aspect;
 	bool isSelected = false;
+	const Font* fontPtr;
 };
