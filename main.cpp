@@ -229,12 +229,21 @@ int main() {
                 );
                 
                 // process menu actions
-                if (action == MenuAction::START_3D) {
-                    stateManager.setState(GameState::PLAYING);
-                    DisableCursor();
-                    cursorEnabled = false;
+                // if (action == MenuAction::PRACTICE) { // need to rework this!!!!!!
+                //     stateManager.setState(GameState::PLAYING);
+                //     DisableCursor();
+                //     cursorEnabled = false;
+                // }
+
+                switch (action) {
+                    case MenuAction::PRACTICE:
+                    case MenuAction::CALIBRATE:
+                    case MenuAction::SETTINGS:
+                    case MenuAction::CREDITS:
+                    default:
+                        break;
                 }
-                else if (action == MenuAction::EXIT_GAME) {
+                if (action == MenuAction::EXIT) {
                     break; // exit main loop
                 }
             }

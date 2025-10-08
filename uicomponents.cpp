@@ -29,6 +29,20 @@ void Gradient::drawGradientRect(Shader shader, Rectangle rect, Color c1, Color c
 
 bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos, bool mouseClicked) {
 	#define SCL(val) ((float)(val) * aspectScale)
+
+	Rectangle buttonRect = { // button rectangle for detection
+        offsetX + SCL(x),
+        offsetY + SCL(y),
+        SCL(width),
+        SCL(height)
+    };
+
+	bool isHovered = isPointInRect(mousePos, buttonRect); // for hover
+
+	Color normalColor = GRAY_3_COLOR_100; // colors for states
+    Color hoverColor = hexToColor("#16846B", 1.0f); // temporary; we can change this
+    Color outlineColor = isSelected || isHovered ? normalColor : GRAY_1_COLOR_100;
+    Color arrowColor = isSelected || isHovered ? BACKGROUND_COLOR : GRAY_3_COLOR_100;
 	
 	Vector2 arrowPoints[6] = {
 		Vector2{offsetX + SCL(x + width - 36), offsetY + SCL(y + 18)},
@@ -39,35 +53,41 @@ bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos,
 		Vector2{offsetX + SCL(x + width - 36), offsetY + SCL(y + 48 - (45.0f / 8.0f))},
 	};
 	
-	if (isSelected) {
-		//DrawRectangle(offsetX + SCL(x), offsetY + SCL(y), SCL(width), SCL(height), GRAY_3_COLOR_100);
-		Vector2 outlinePoints[5] = {
-			Vector2{offsetX + SCL(x), offsetY + SCL(y)},
-			Vector2{offsetX + SCL(x), offsetY + SCL(y + height)},
-			Vector2{offsetX + SCL(x + width - 24), offsetY + SCL(y + height)},
-			Vector2{offsetX + SCL(x + width), offsetY + SCL(y + height - 20)},
-			Vector2{offsetX + SCL(x + width), offsetY + SCL(y)},
-		};
-		DrawTriangleFan(outlinePoints, 5, GRAY_3_COLOR_100); //24x20 removed corner
-		DrawTriangleStrip(arrowPoints, 6, BACKGROUND_COLOR);
-	
-		DrawRectangle(offsetX + SCL(x + 378), offsetY + SCL(y), SCL(4), SCL(45), GRAY_3_COLOR_100); //vertical accent
-		
-	} else {
-		Vector2 outlinePoints[6] = {
-			Vector2{offsetX + SCL(x + 1), offsetY + SCL(y + 1)},
-			Vector2{offsetX + SCL(x + 1), offsetY + SCL(y + height - 1)},
-			Vector2{offsetX + SCL(x + width - 25), offsetY + SCL(y + height - 1)},
-			Vector2{offsetX + SCL(x + width - 1), offsetY + SCL(y + height - 21)},
-			Vector2{offsetX + SCL(x + width - 1), offsetY + SCL(y + 1)},
-			Vector2{offsetX + SCL(x + 1) + 1, offsetY + SCL(y + 1)},
-		};
-		DrawSplineLinear(outlinePoints, 6, 2 * aspectScale, GRAY_1_COLOR_100);
-		DrawTriangleStrip(arrowPoints, 6, GRAY_3_COLOR_100);
+	if (isSelected || isHovered) {
+        Vector2 outlinePoints[5] = {
+            Vector2{offsetX + SCL(x), offsetY + SCL(y)},
+            Vector2{offsetX + SCL(x), offsetY + SCL(y + height)},
+            Vector2{offsetX + SCL(x + width - 24), offsetY + SCL(y + height)},
+            Vector2{offsetX + SCL(x + width), offsetY + SCL(y + height - 20)},
+            Vector2{offsetX + SCL(x + width), offsetY + SCL(y)},
+        };
+        DrawTriangleFan(outlinePoints, 5, isHovered ? hoverColor : normalColor);
+        DrawTriangleStrip(arrowPoints, 6, arrowColor);
+        DrawRectangle(offsetX + SCL(x + 378), offsetY + SCL(y), SCL(4), SCL(45), normalColor); // vertical accent
+    } else {
+        Vector2 outlinePoints[6] = {
+            Vector2{offsetX + SCL(x + 1), offsetY + SCL(y + 1)},
+            Vector2{offsetX + SCL(x + 1), offsetY + SCL(y + height - 1)},
+            Vector2{offsetX + SCL(x + width - 25), offsetY + SCL(y + height - 1)},
+            Vector2{offsetX + SCL(x + width - 1), offsetY + SCL(y + height - 21)},
+            Vector2{offsetX + SCL(x + width - 1), offsetY + SCL(y + 1)},
+            Vector2{offsetX + SCL(x + 1) + 1, offsetY + SCL(y + 1)},
+        };
+        DrawSplineLinear(outlinePoints, 6, 2 * aspectScale, outlineColor);
+        DrawTriangleStrip(arrowPoints, 6, arrowColor);
+    }
+
+	if (fontPtr && fontPtr->texture.id != 0) { // checking if font is valid
+		float fontSize = SCL(24); 
+		Vector2 textSize = MeasureTextEx(*fontPtr, text.c_str(), fontSize, 1);
+		float textX = offsetX + SCL(x + width - 60) - textSize.x; // some px offset, trying 60px from right for now
+		float textY = offsetY + SCL(y) + (SCL(height) - textSize.y) / 2; // vertically centered
+		Color textColor = isSelected || isHovered ? BACKGROUND_COLOR : GRAY_3_COLOR_100;
+		DrawTextEx(*fontPtr, text.c_str(), Vector2{textX, textY}, fontSize, 1, textColor);
 	}
 	
 	#undef SCL
-	return false;
+	return isHovered && mouseClicked; // conditions for click
 }
 /*bool UIComponents::drawButtonCore(const char* text, int centerX, int centerY, int width, int height, Vector2 mousePos, bool isClicked, Color normalColor, Color hoverColor, Color textColor, float aspectScale) {
     int scaledWidth = (int)(width * aspectScale);

@@ -6,23 +6,27 @@
 #include "raylib.h"
 #include <algorithm>
 
+extern Font DOHYEON_REGULAR;
+
 MenuScreen::MenuScreen() {
-	addButton(40, 342, 360, 65, "PRACTICE", true);
-	addButton(40, 442, 360, 65, "CALIBRATE", false);
-	addButton(40, 542, 360, 65, "SETTINGS", false);
-	addButton(40, 642, 360, 65, "CREDITS", false);
-	addButton(40, 742, 360, 65, "EXIT", false);
+    // main buttons
+	addButton(40, 342, 360, 65, "PRACTICE", true, DOHYEON_REGULAR);
+	addButton(40, 442, 360, 65, "CALIBRATE", false, DOHYEON_REGULAR);
+	addButton(40, 542, 360, 65, "SETTINGS", false, DOHYEON_REGULAR);
+	addButton(40, 642, 360, 65, "CREDITS", false, DOHYEON_REGULAR);
+	addButton(40, 742, 360, 65, "EXIT", false, DOHYEON_REGULAR);
 	
-	addButton(442, 342, 360, 65, "BOTS", false);
-	addButton(442, 442, 360, 65, "TRACKING", false);
-	addButton(442, 542, 360, 65, "FLICKING", true);
-	addButton(442, 642, 360, 65, "MICRO", false);
-	addButton(442, 742, 360, 65, "REACTION", false);
-	addButton(442, 842, 360, 65, "HEADSHOT", false);
+    // practice set buttons
+	addButton(442, 342, 360, 65, "BOTS", false, DOHYEON_REGULAR);
+	addButton(442, 442, 360, 65, "TRACKING", false, DOHYEON_REGULAR);
+	addButton(442, 542, 360, 65, "FLICKING", true, DOHYEON_REGULAR);
+	addButton(442, 642, 360, 65, "MICRO", false, DOHYEON_REGULAR);
+	addButton(442, 742, 360, 65, "REACTION", false, DOHYEON_REGULAR);
+	addButton(442, 842, 360, 65, "HEADSHOT", false, DOHYEON_REGULAR);
 }
 
-void MenuScreen::addButton(int buttonX, int buttonY, int width, int height, std::string buttonText, bool buttonSelected) {
-	buttons.emplace_back(buttonX, buttonY, width, height, buttonText, buttonSelected);
+void MenuScreen::addButton(int buttonX, int buttonY, int width, int height, const std::string& buttonText, bool buttonSelected, const Font& font) {
+    buttons.emplace_back(buttonX, buttonY, width, height, buttonText, buttonSelected, &font);
 }
 
 MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader) {
@@ -117,27 +121,34 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     
 	Vector2 mousePos = input.getMousePosition();
 	bool mouseClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
-	
-	for (Button& button : buttons) {
-		button.draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked);
-	};
-    /*
-    bool isClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
 
-    int playButtonY = centerY - SCL(20);
-    int exitButtonY = centerY + SCL(40);
+    // map button text to action
+    std::unordered_map<std::string, MenuAction> buttonActions = {
+        {"PRACTICE", MenuAction::PRACTICE},
+        {"CALIBRATE", MenuAction::CALIBRATE},
+        {"SETTINGS", MenuAction::SETTINGS},
+        {"CREDITS", MenuAction::CREDITS},
+        {"EXIT", MenuAction::EXIT}
+    };
 
-    if (UIComponents::drawPlayButton(centerX, playButtonY, mousePos, isClicked, PRIMARY_COLOR_100, GRAY_4_COLOR_80, BACKGROUND_COLOR, aspectScale)) {
-        return MenuAction::START_3D;
+    for (int i = 0; i < buttons.size(); i++) { // look here kelele!!!!!!!!!!!!!!!!!!!!
+        buttons[i].isSelected = (i == selectedButtonIndex);
+        
+        if (buttons[i].draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
+            selectedButtonIndex = i;  // update selection on click (but this treats sub buttons as main buttons)
+            
+            auto it = buttonActions.find(buttons[i].text);
+            if (it != buttonActions.end()) {
+                return it->second;
+            }
+        }
     }
-    
-    if (UIComponents::drawExitButton(centerX, exitButtonY, mousePos, isClicked, GRAY_2_COLOR_100, GRAY_3_COLOR_80, GRAY_4_COLOR_80, aspectScale)) {
-        return MenuAction::EXIT_GAME;
-    }*/
 
-    #undef SCL
-    
-    return MenuAction::NONE;
+
+
+
+    #undef SCL    
+    return MenuAction::PRACTICE; // default on load
 }
 
 bool MenuScreen::isPointInRect(Vector2 point, Rectangle rect) {
