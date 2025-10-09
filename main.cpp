@@ -339,7 +339,7 @@ int main() {
 
 void loadFonts() {
     DOHYEON_REGULAR = LoadFontFromMemory(".ttf", dohyeon_regular, sizeof(dohyeon_regular), 48, nullptr, 0);
-    ORBITRON_BOLD = LoadFontFromMemory(".ttf", orbitron_bold, sizeof(orbitron_bold), 48, nullptr, 0);
+    ORBITRON_BOLD = LoadFontFromMemory(".ttf", orbitron_bold, sizeof(orbitron_bold), 96, nullptr, 0);
 
     SetTextureFilter(DOHYEON_REGULAR.texture, TEXTURE_FILTER_BILINEAR);
     SetTextureFilter(ORBITRON_BOLD.texture, TEXTURE_FILTER_BILINEAR);
