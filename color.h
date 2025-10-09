@@ -11,6 +11,7 @@ const Color PRIMARY_COLOR_100 = hexToColor("#09B58A", 1.0f);
 const Color PRIMARY_COLOR_10 = hexToColor("#09B58A", 0.1f);
 
 const Color GRAY_0_COLOR_100 = hexToColor("#5A6164", 1.0f);
+const Color GRAY_0_COLOR_40 = hexToColor("#313439", 0.8f);
 
 const Color GRAY_1_COLOR_100 = hexToColor("#82858A", 1.0f);
 
