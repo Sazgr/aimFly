@@ -23,6 +23,8 @@ MenuScreen::MenuScreen() {
 	addButton(442, 642, 360, 65, "MICRO", false, DOHYEON_REGULAR);
 	addButton(442, 742, 360, 65, "REACTION", false, DOHYEON_REGULAR);
 	addButton(442, 842, 360, 65, "HEADSHOT", false, DOHYEON_REGULAR);
+	
+	addButton(1640, 944, 240, 65, "BEGIN", false, DOHYEON_REGULAR);
 }
 
 void MenuScreen::addButton(int buttonX, int buttonY, int width, int height, const std::string& buttonText, bool buttonSelected, const Font& font) {
@@ -38,15 +40,28 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     int centerY = offsetY + scaledHeight / 2;
 
     DrawRectangle(offsetX, offsetY, scaledWidth, scaledHeight, BACKGROUND_COLOR); // background
-   
-    Gradient::drawGradientRect( // background primary accent gradient
+	
+	//top right pattern
+	for (int i{0}; i < 12; ++i) {
+		Vector2 points[5] = {
+            Vector2{offsetX + SCL(490 + i * 120), offsetY + SCL(50)},
+            Vector2{offsetX + SCL(680 + i * 120), offsetY + SCL(240)},
+            Vector2{offsetX + SCL(740 + i * 120), offsetY + SCL(240)},
+            Vector2{offsetX + SCL(550 + i * 120), offsetY + SCL(50)},
+        };
+        DrawTriangleFan(points, 4, GRAY_0_COLOR_40);
+	}
+	DrawRectangle(offsetX + SCL(490), offsetY + SCL(20), SCL(200), SCL(240), BACKGROUND_COLOR);
+	DrawRectangle(offsetX + SCL(1880), offsetY + SCL(20), SCL(40), SCL(240), BACKGROUND_COLOR);
+	
+	Gradient::drawGradientRect( // background primary accent gradient
         gradientShader, 
         Rectangle{ (float)offsetX, (float)offsetY, (float)SCL(500), (float)scaledHeight },
         hexToColor("#273A3B", 1.0f),
         BACKGROUND_COLOR, 
         false
     );
-
+	
     DrawRectangle(offsetX + SCL(40), offsetY + SCL(20), SCL(726), SCL(4), GRAY_4_COLOR_80); // top accent bar
     DrawTriangle(
         Vector2{(float)offsetX + SCL(740), (float)offsetY + SCL(24)},

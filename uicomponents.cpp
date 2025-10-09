@@ -40,7 +40,7 @@ bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos,
 	bool isHovered = isPointInRect(mousePos, buttonRect); // for hover
 
 	Color normalColor = GRAY_3_COLOR_100; // colors for states
-    Color hoverColor = hexToColor("#16846B", 1.0f); // temporary; we can change this
+    Color hoverColor = GRAY_3_COLOR_100; // temporary; we can change this
     Color outlineColor = isSelected || isHovered ? normalColor : GRAY_1_COLOR_100;
     Color arrowColor = isSelected || isHovered ? BACKGROUND_COLOR : GRAY_3_COLOR_100;
 	
@@ -63,7 +63,6 @@ bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos,
         };
         DrawTriangleFan(outlinePoints, 5, isHovered ? hoverColor : normalColor);
         DrawTriangleStrip(arrowPoints, 6, arrowColor);
-        DrawRectangle(offsetX + SCL(x + 378), offsetY + SCL(y), SCL(4), SCL(45), normalColor); // vertical accent
     } else {
         Vector2 outlinePoints[6] = {
             Vector2{offsetX + SCL(x + 1), offsetY + SCL(y + 1)},
@@ -76,6 +75,10 @@ bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos,
         DrawSplineLinear(outlinePoints, 6, 2 * aspectScale, outlineColor);
         DrawTriangleStrip(arrowPoints, 6, arrowColor);
     }
+	
+	if (isSelected) {
+		DrawRectangle(offsetX + SCL(x + 378), offsetY + SCL(y), SCL(4), SCL(45), normalColor); // vertical accent
+	}
 
 	if (fontPtr && fontPtr->texture.id != 0) { // checking if font is valid
 		float fontSize = SCL(24); 
