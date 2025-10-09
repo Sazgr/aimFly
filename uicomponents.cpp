@@ -81,9 +81,9 @@ bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos,
 	}
 
 	if (fontPtr && fontPtr->texture.id != 0) { // checking if font is valid
-		float fontSize = SCL(24); 
+		float fontSize = SCL(30); 
 		Vector2 textSize = MeasureTextEx(*fontPtr, text.c_str(), fontSize, 1);
-		float textX = offsetX + SCL(x + width - 60) - textSize.x; // some px offset, trying 60px from right for now
+		float textX = offsetX + SCL(x + width - 50) - textSize.x; // some px offset, trying 60px from right for now
 		float textY = offsetY + SCL(y) + (SCL(height) - textSize.y) / 2; // vertically centered
 		Color textColor = isSelected || isHovered ? BACKGROUND_COLOR : GRAY_3_COLOR_100;
 		DrawTextEx(*fontPtr, text.c_str(), Vector2{textX, textY}, fontSize, 1, textColor);

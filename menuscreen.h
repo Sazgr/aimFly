@@ -25,6 +25,7 @@ private:
 public:
 	MenuScreen();
 	void addButton(int buttonX, int buttonY, int width, int height, const std::string& buttonText, bool isSelected, const Font& font);
+	void drawStat(float aspectScale, int offsetX, int offsetY, int x, std::string statTitle, std::string statValue);
     MenuAction render(int screenWidth, int screenHeight, int offsetX, int offsetY, 
                       int scaledWidth, int scaledHeight, InputManager& input, 
                       int nativeWidth, int nativeHeight, Shader& gradientShader);
