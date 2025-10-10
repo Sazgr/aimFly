@@ -7,7 +7,11 @@
 #include "raylib.h"
 
 #include <algorithm>
+#include <ctime>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
+#include <utility>
 
 extern Font DOHYEON_REGULAR;
 extern Font ORBITRON_BOLD;
@@ -32,6 +36,25 @@ MenuScreen::MenuScreen() {
 	
 	menus.push_back(Menu{});
 	menus.back().addButton(1640, 944, 240, 65, "BEGIN", true, DOHYEON_REGULAR, false);
+}
+
+std::pair<std::string, std::string> MenuScreen::getDateTime() {
+    std::time_t now = std::time(nullptr);
+    std::tm local_tm = *std::localtime(&now);
+
+    // Format date
+    std::ostringstream ossDate;
+    ossDate << std::put_time(&local_tm, "%B %d, %Y");
+    std::string date = ossDate.str();
+
+    // Format time
+    std::ostringstream ossTime;
+    ossTime << std::put_time(&local_tm, " | %I:%M %p");
+    std::string time = ossTime.str();
+    if (time[3] == '0')
+        time.erase(3, 1);
+
+    return make_pair(date, time);
 }
 
 void MenuScreen::drawStat(float aspectScale, int offsetX, int offsetY, int x, std::string statTitle, std::string statValue) {
@@ -93,11 +116,10 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
 	DrawRectangle(offsetX + SCL(1527), offsetY + SCL(30), SCL(100), SCL(10), GRAY_5_COLOR_80); //top accent bar details
 	DrawRectangle(offsetX + SCL(1647), offsetY + SCL(30), SCL(100), SCL(10), PRIMARY_0_COLOR_100);
 	DrawRectangle(offsetX + SCL(1767), offsetY + SCL(30), SCL(100), SCL(10), GRAY_5_COLOR_80);
-	std::string dateString = "September 26, 2025";
-	//DrawRectangle(offsetX + SCL(766), offsetY + SCL(18), SCL(400), SCL(34), GRAY_1_COLOR_100);
-	DrawTextEx(DOHYEON_REGULAR, dateString.c_str(), Vector2{offsetX + SCL(766), offsetY + SCL(25)}, SCL(22), 1, PRIMARY_1_COLOR_100);
-	Vector2 dateSize = MeasureTextEx(DOHYEON_REGULAR, dateString.c_str(), SCL(22), 1);
-	DrawTextEx(DOHYEON_REGULAR, " | 10:09AM", Vector2{offsetX + SCL(766) + dateSize.x, offsetY + SCL(25)}, SCL(22), 1, PRIMARY_2_COLOR_100);
+	std::pair<std::string, std::string> dateTime = getDateTime();
+	DrawTextEx(DOHYEON_REGULAR, dateTime.first.c_str(), Vector2{offsetX + SCL(766), offsetY + SCL(25)}, SCL(22), 1, PRIMARY_1_COLOR_100);
+	Vector2 dateSize = MeasureTextEx(DOHYEON_REGULAR, dateTime.first.c_str(), SCL(22), 1);
+	DrawTextEx(DOHYEON_REGULAR, dateTime.second.c_str(), Vector2{offsetX + SCL(766) + dateSize.x, offsetY + SCL(25)}, SCL(22), 1, PRIMARY_2_COLOR_100);
 
     DrawRectangle(offsetX + SCL(40), offsetY + SCL(40), SCL(10), SCL(200), GRAY_7_COLOR_100); // title gradient vertical start
     Gradient::drawGradientRect( // title gradient backing
