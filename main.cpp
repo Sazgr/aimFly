@@ -23,6 +23,7 @@
 #include "assets/fonts/DOHYEON_REGULAR.h"
 #include "assets/fonts/ORBITRON_BOLD.h"
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -141,8 +142,54 @@ int main() {
             if (input.isKeyPressed(KEY_ESCAPE)) {
                 break; // exit game
             }
-        }
-        else if (stateManager.isState(GameState::PLAYING)) {
+			
+			BeginDrawing();
+				ClearBackground(BLACK);
+				
+				// handle menu rendering and clicking with correct 16:9 viewport
+                MenuAction action = menuScreen.render(
+                    screenWidth, screenHeight, offsetX, offsetY, 
+                    scaledWidth, scaledHeight, input,
+                    NATIVE_WIDTH, NATIVE_HEIGHT,
+                    gradientShader
+                );
+
+                switch (action) {
+                    case MenuAction::PRACTICE:
+						menuScreen.menus[1].visible = true;
+						break;
+                    case MenuAction::CALIBRATE:
+						menuScreen.menus[1].visible = false;
+						break;
+                    case MenuAction::SETTINGS:
+						menuScreen.menus[1].visible = false;
+						break;
+                    case MenuAction::CREDITS:
+						menuScreen.menus[1].visible = false;
+						break;
+					case MenuAction::TRACKING:
+						task.setTask(TaskId::STRAFESHOT, shader);
+						break;
+					case MenuAction::FLICKING:
+						task.setTask(TaskId::GRIDSHOT, shader);
+						break;
+					case MenuAction::HEADSHOT:
+						task.setTask(TaskId::HEADSHOT, shader);
+						break;
+					case MenuAction::BEGIN:
+						std::cout << "hiii" << std::endl;
+						stateManager.setState(GameState::PLAYING);
+						DisableCursor();
+						cursorEnabled = false;
+						break;
+                    default:
+                        break;
+                }
+                if (action == MenuAction::EXIT) {
+                    break; // exit main loop
+                }
+			EndDrawing();
+        } else if (stateManager.isState(GameState::PLAYING)) {			
             // calculate forward/right vectors only when playing
             Vector3 forward = {
                 cosf(pitch) * cosf(yaw),
@@ -213,49 +260,11 @@ int main() {
             // update camera target
             camera.target = Vector3Add(camera.position, forward);
             camera.up = {0.0f, 1.0f, 0.0f};
-        }
 
-        // rendering
-        BeginDrawing();
-            ClearBackground(BLACK);
-            
-            if (stateManager.isState(GameState::MENU)) {
-                // handle menu rendering and clicking with correct 16:9 viewport
-                MenuAction action = menuScreen.render(
-                    screenWidth, screenHeight, offsetX, offsetY, 
-                    scaledWidth, scaledHeight, input,
-                    NATIVE_WIDTH, NATIVE_HEIGHT,
-                    gradientShader
-                );
-                
-                // process menu actions
-                // if (action == MenuAction::PRACTICE) { // need to rework this!!!!!!
-                //     stateManager.setState(GameState::PLAYING);
-                //     DisableCursor();
-                //     cursorEnabled = false;
-                // }
-
-                switch (action) {
-                    case MenuAction::PRACTICE:
-                    case MenuAction::CALIBRATE:
-                    case MenuAction::SETTINGS:
-                    case MenuAction::CREDITS:
-                    default:
-                        break;
-                }
-                if (action == MenuAction::EXIT) {
-                    break; // exit main loop
-                }
-            }
-            else if (stateManager.isState(GameState::PLAYING)) {
-                Vector3 forward = {
-                    cosf(pitch) * cosf(yaw),
-                    sinf(pitch),
-                    cosf(pitch) * sinf(yaw)
-                };
-                forward = Vector3Normalize(forward);
-                Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, Vector3{0, 1, 0}));
-
+			// rendering
+			BeginDrawing();
+				ClearBackground(BLACK);
+				
                 // render 3D scene to texture
                 BeginTextureMode(gameTexture);
                     ClearBackground(SKYBLUE);
@@ -322,8 +331,8 @@ int main() {
                 DrawTextEx(DOHYEON_REGULAR, (std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing * 3}, fontSize, 0.0f, BLACK);
 
                 DrawFPS(10, 10);
-            }
-        EndDrawing();
+			EndDrawing();
+		}
     }
 
     UnloadRenderTexture(gameTexture);

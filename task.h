@@ -17,7 +17,12 @@ enum class TaskId {
 class Task {
 public:
 	Task(TaskId tid, Shader& shader) {
+		setTask(tid, shader);
+	}
+	
+	void setTask(TaskId tid, Shader& shader) {
 		assert(tid != TaskId::NONE);
+		targets.clear();
 		taskId = tid;
 		targets.reserve(10);
 		if (taskId == TaskId::GRIDSHOT) {

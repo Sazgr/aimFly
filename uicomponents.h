@@ -16,7 +16,7 @@ public:
 class Button {
 public:
 	Button() {}
-	Button(int x, int y, int width, int height, const std::string& text, bool isSelected, const Font* font = nullptr, bool showAccent = false) {
+	Button(int x, int y, int width, int height, const std::string& text, bool isSelected, const Font* font = nullptr, bool showAccent = true) {
 		this->x = x;
 		this->y = y;
 		this->width = width;
@@ -24,8 +24,10 @@ public:
 		this->text = text;
 		this->isSelected = isSelected;
 		this->fontPtr = font;
+		this->showAccent = showAccent;
 	}
-    bool draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos, bool mouseClicked);
+    void draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos, bool mouseClicked);
+	bool clicked(int offsetX, int offsetY, float aspectScale, Vector2 mousePos, bool mouseClicked);
 
 	std::string text;
 	int x;
