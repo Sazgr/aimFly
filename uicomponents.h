@@ -16,7 +16,7 @@ public:
 class Button {
 public:
 	Button() {}
-	Button(int x, int y, int width, int height, const std::string& text, bool isSelected, const Font* font = nullptr) {
+	Button(int x, int y, int width, int height, const std::string& text, bool isSelected, const Font* font = nullptr, bool showAccent = false) {
 		this->x = x;
 		this->y = y;
 		this->width = width;
@@ -35,4 +35,5 @@ public:
 	float aspect;
 	bool isSelected = false;
 	const Font* fontPtr;
+	bool showAccent;
 };
