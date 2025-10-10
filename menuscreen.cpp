@@ -2,9 +2,12 @@
 #include "menuscreen.h"
 #include "uicomponents.h"
 #include "inputmanager.h"
+
 #include "rlgl.h"
 #include "raylib.h"
+
 #include <algorithm>
+#include <iostream>
 
 extern Font DOHYEON_REGULAR;
 extern Font ORBITRON_BOLD;
@@ -28,7 +31,7 @@ MenuScreen::MenuScreen() {
 	menus.back().addButton(442, 842, 360, 65, "HEADSHOT", false, DOHYEON_REGULAR);
 	
 	menus.push_back(Menu{});
-	menus.back().addButton(1640, 944, 240, 65, "BEGIN", false, DOHYEON_REGULAR);
+	menus.back().addButton(1640, 944, 240, 65, "BEGIN", true, DOHYEON_REGULAR, false);
 }
 
 void MenuScreen::drawStat(float aspectScale, int offsetX, int offsetY, int x, std::string statTitle, std::string statValue) {
@@ -163,33 +166,34 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     
 	Vector2 mousePos = input.getMousePosition();
 	bool mouseClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
-
-    // map button text to action
-    std::unordered_map<std::string, MenuAction> buttonActions = {
-        {"PRACTICE", MenuAction::PRACTICE},
-        {"CALIBRATE", MenuAction::CALIBRATE},
-        {"SETTINGS", MenuAction::SETTINGS},
-        {"CREDITS", MenuAction::CREDITS},
-        {"EXIT", MenuAction::EXIT}
-    };
 	
 	for (int i{}; i < menus.size(); ++i) {
-		for (int j{}; j < menus[i].buttons.size(); ++j) { // look here kelele!!!!!!!!!!!!!!!!!!!!
+		if (!menus[i].visible) continue;
+		for (int j{}; j < menus[i].buttons.size(); ++j) {
+			if (menus[i].buttons[j].clicked(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
+				menus[i].selectedIndex = j;
+			}
+		}
+		for (int j{}; j < menus[i].buttons.size(); ++j) {
 			menus[i].buttons[j].isSelected = (j == menus[i].selectedIndex);
-			
-			if (menus[i].buttons[j].draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
-				menus[i].selectedIndex = j;  // update selection on click (but this treats sub buttons as main buttons)
-				
+			menus[i].buttons[j].draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked);
+		}
+	}
+	for (int i{}; i < menus.size(); ++i) {
+		if (!menus[i].visible) continue;
+		for (int j{}; j < menus[i].buttons.size(); ++j) {
+			if (menus[i].buttons[j].clicked(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
 				auto it = buttonActions.find(menus[i].buttons[j].text);
 				if (it != buttonActions.end()) {
+					std::cout << menus[i].buttons[j].text << std::endl;
 					return it->second;
 				}
 			}
 		}
 	}
 
-    #undef SCL    
-    return MenuAction::PRACTICE; // default on load
+    #undef SCL
+    return MenuAction::NONE; // default on load
 }
 
 bool MenuScreen::isPointInRect(Vector2 point, Rectangle rect) {

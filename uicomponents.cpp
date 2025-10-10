@@ -27,7 +27,7 @@ void Gradient::drawGradientRect(Shader shader, Rectangle rect, Color c1, Color c
     EndShaderMode();
 }
 
-bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos, bool mouseClicked) {
+void Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos, bool mouseClicked) {
 	#define SCL(val) ((float)(val) * aspectScale)
 
 	Rectangle buttonRect = { // button rectangle for detection
@@ -88,6 +88,21 @@ bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos,
 		Color textColor = isSelected || isHovered ? BACKGROUND_COLOR : GRAY_3_COLOR_100;
 		DrawTextEx(*fontPtr, text.c_str(), Vector2{textX, textY}, fontSize, 1, textColor);
 	}
+	
+	#undef SCL
+}
+
+bool Button::clicked(int offsetX, int offsetY, float aspectScale, Vector2 mousePos, bool mouseClicked) {
+	#define SCL(val) ((float)(val) * aspectScale)
+
+	Rectangle buttonRect = { // button rectangle for detection
+        offsetX + SCL(x),
+        offsetY + SCL(y),
+        SCL(width),
+        SCL(height)
+    };
+
+	bool isHovered = isPointInRect(mousePos, buttonRect); // for hover
 	
 	#undef SCL
 	return isHovered && mouseClicked; // conditions for click
