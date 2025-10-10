@@ -7,6 +7,7 @@
 #include "raylib.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 
 enum class MenuAction {
@@ -43,6 +44,7 @@ private:
 public:
 	std::vector<Menu> menus;
 	MenuScreen();
+	std::pair<std::string, std::string> getDateTime();
 	void drawStat(float aspectScale, int offsetX, int offsetY, int x, std::string statTitle, std::string statValue);
     MenuAction render(int screenWidth, int screenHeight, int offsetX, int offsetY, 
                       int scaledWidth, int scaledHeight, InputManager& input, 
