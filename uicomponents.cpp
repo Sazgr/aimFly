@@ -39,10 +39,10 @@ bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos,
 
 	bool isHovered = isPointInRect(mousePos, buttonRect); // for hover
 
-	Color normalColor = GRAY_3_COLOR_100; // colors for states
-    Color hoverColor = GRAY_3_COLOR_100; // temporary; we can change this
+	Color normalColor = GRAY_5_COLOR_100; // colors for states
+    Color hoverColor = GRAY_5_COLOR_100; // temporary; we can change this
     Color outlineColor = isSelected || isHovered ? normalColor : GRAY_1_COLOR_100;
-    Color arrowColor = isSelected || isHovered ? BACKGROUND_COLOR : GRAY_3_COLOR_100;
+    Color arrowColor = isSelected || isHovered ? BACKGROUND_COLOR : GRAY_5_COLOR_100;
 	
 	Vector2 arrowPoints[6] = {
 		Vector2{offsetX + SCL(x + width - 36), offsetY + SCL(y + 18)},
