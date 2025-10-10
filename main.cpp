@@ -177,7 +177,6 @@ int main() {
 						task.setTask(TaskId::HEADSHOT, shader);
 						break;
 					case MenuAction::BEGIN:
-						std::cout << "hiii" << std::endl;
 						stateManager.setState(GameState::PLAYING);
 						DisableCursor();
 						cursorEnabled = false;
