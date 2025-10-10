@@ -11,25 +11,24 @@ extern Font ORBITRON_BOLD;
 
 MenuScreen::MenuScreen() {
     // main buttons
-	addButton(40, 342, 360, 65, "PRACTICE", true, DOHYEON_REGULAR);
-	addButton(40, 442, 360, 65, "CALIBRATE", false, DOHYEON_REGULAR);
-	addButton(40, 542, 360, 65, "SETTINGS", false, DOHYEON_REGULAR);
-	addButton(40, 642, 360, 65, "CREDITS", false, DOHYEON_REGULAR);
-	addButton(40, 742, 360, 65, "EXIT", false, DOHYEON_REGULAR);
+	menus.push_back(Menu{});
+	menus.back().addButton(40, 342, 360, 65, "PRACTICE", true, DOHYEON_REGULAR);
+	menus.back().addButton(40, 442, 360, 65, "CALIBRATE", false, DOHYEON_REGULAR);
+	menus.back().addButton(40, 542, 360, 65, "SETTINGS", false, DOHYEON_REGULAR);
+	menus.back().addButton(40, 642, 360, 65, "CREDITS", false, DOHYEON_REGULAR);
+	menus.back().addButton(40, 742, 360, 65, "EXIT", false, DOHYEON_REGULAR);
 	
     // practice set buttons
-	addButton(442, 342, 360, 65, "BOTS", false, DOHYEON_REGULAR);
-	addButton(442, 442, 360, 65, "TRACKING", false, DOHYEON_REGULAR);
-	addButton(442, 542, 360, 65, "FLICKING", true, DOHYEON_REGULAR);
-	addButton(442, 642, 360, 65, "MICRO", false, DOHYEON_REGULAR);
-	addButton(442, 742, 360, 65, "REACTION", false, DOHYEON_REGULAR);
-	addButton(442, 842, 360, 65, "HEADSHOT", false, DOHYEON_REGULAR);
+	menus.push_back(Menu{});
+	menus.back().addButton(442, 342, 360, 65, "BOTS", false, DOHYEON_REGULAR);
+	menus.back().addButton(442, 442, 360, 65, "TRACKING", false, DOHYEON_REGULAR);
+	menus.back().addButton(442, 542, 360, 65, "FLICKING", true, DOHYEON_REGULAR);
+	menus.back().addButton(442, 642, 360, 65, "MICRO", false, DOHYEON_REGULAR);
+	menus.back().addButton(442, 742, 360, 65, "REACTION", false, DOHYEON_REGULAR);
+	menus.back().addButton(442, 842, 360, 65, "HEADSHOT", false, DOHYEON_REGULAR);
 	
-	addButton(1640, 944, 240, 65, "BEGIN", false, DOHYEON_REGULAR);
-}
-
-void MenuScreen::addButton(int buttonX, int buttonY, int width, int height, const std::string& buttonText, bool buttonSelected, const Font& font) {
-    buttons.emplace_back(buttonX, buttonY, width, height, buttonText, buttonSelected, &font);
+	menus.push_back(Menu{});
+	menus.back().addButton(1640, 944, 240, 65, "BEGIN", false, DOHYEON_REGULAR);
 }
 
 void MenuScreen::drawStat(float aspectScale, int offsetX, int offsetY, int x, std::string statTitle, std::string statValue) {
@@ -173,19 +172,21 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
         {"CREDITS", MenuAction::CREDITS},
         {"EXIT", MenuAction::EXIT}
     };
-
-    for (int i = 0; i < buttons.size(); i++) { // look here kelele!!!!!!!!!!!!!!!!!!!!
-        buttons[i].isSelected = (i == selectedButtonIndex);
-        
-        if (buttons[i].draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
-            selectedButtonIndex = i;  // update selection on click (but this treats sub buttons as main buttons)
-            
-            auto it = buttonActions.find(buttons[i].text);
-            if (it != buttonActions.end()) {
-                return it->second;
-            }
-        }
-    }
+	
+	for (int i{}; i < menus.size(); ++i) {
+		for (int j{}; j < menus[i].buttons.size(); ++j) { // look here kelele!!!!!!!!!!!!!!!!!!!!
+			menus[i].buttons[j].isSelected = (j == menus[i].selectedIndex);
+			
+			if (menus[i].buttons[j].draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
+				menus[i].selectedIndex = j;  // update selection on click (but this treats sub buttons as main buttons)
+				
+				auto it = buttonActions.find(menus[i].buttons[j].text);
+				if (it != buttonActions.end()) {
+					return it->second;
+				}
+			}
+		}
+	}
 
     #undef SCL    
     return MenuAction::PRACTICE; // default on load

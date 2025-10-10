@@ -76,7 +76,7 @@ bool Button::draw(int offsetX, int offsetY, float aspectScale, Vector2 mousePos,
         DrawTriangleStrip(arrowPoints, 6, arrowColor);
     }
 	
-	if (isSelected) {
+	if (isSelected && showAccent) {
 		DrawRectangle(offsetX + SCL(x + 378), offsetY + SCL(y), SCL(4), SCL(45), normalColor); // vertical accent
 	}
 
