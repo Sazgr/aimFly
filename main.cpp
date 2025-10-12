@@ -206,7 +206,7 @@ int main() {
             if (pitch < -0.5 * PI + 0.01) pitch = -0.5 * PI + 0.01;
 
             // movement
-            float speed = 0.01f;
+            float speed = 0.02f;
 			Vector3 walk_w = forward;
 			walk_w.y = 0;
 			walk_w = Vector3Normalize(walk_w);

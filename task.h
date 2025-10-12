@@ -23,9 +23,13 @@ public:
 	
 	void setTask(TaskId tid, Shader& shader) {
 		assert(tid != TaskId::NONE);
-		targets.clear();
+		
 		taskId = tid;
+		targets.clear();
 		targets.reserve(10);
+		objects.clear();
+		objects.reserve(50);
+		
 		if (taskId == TaskId::GRIDSHOT) {
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 0.0f}, 0.3f);
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 1.0f, 0.0f}, 0.3f);
