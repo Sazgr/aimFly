@@ -17,4 +17,6 @@ struct HitInfo {
 	float distance;
 };
 
+bool operator<(HitInfo a, HitInfo b);
+
 #endif
