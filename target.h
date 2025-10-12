@@ -17,6 +17,8 @@ enum HitType {
 	BODYSHOT,
 };
 
+struct HitInfo;
+
 class Target {
 public:
 	Target(TargetType t, Vector3 pos, float sz) {
@@ -62,36 +64,7 @@ public:
 		}
 	}
 	
-	int hitscan(Vector3 camPos, Vector3 forward) {
-		Ray ray{camPos, forward};		
-		if (type == TargetType::SPHERE) {
-			Matrix transform = MatrixTranslate(position.x, position.y, position.z);
-			RayCollision collision = GetRayCollisionMesh(ray, models[0].meshes[0], transform);
-			if (collision.hit) return HEADSHOT;
-			
-			return MISS;
-		} else if (type == TargetType::BODY) {
-			Matrix transform = MatrixTranslate(position.x, position.y, position.z);
-			RayCollision collision = GetRayCollisionMesh(ray, models[0].meshes[0], transform);
-			if (collision.hit) return HEADSHOT;
-			
-			transform = MatrixTranslate(position.x, position.y - 2 * size, position.z);
-			collision = GetRayCollisionMesh(ray, models[1].meshes[0], transform);
-			if (collision.hit) return BODYSHOT;
-			
-			transform = MatrixTranslate(position.x, position.y - 4.5f * size, position.z);
-			collision = GetRayCollisionMesh(ray, models[2].meshes[0], transform);
-			if (collision.hit) return BODYSHOT;
-			
-			transform = MatrixTranslate(position.x, position.y - 4.5f * size, position.z);
-			collision = GetRayCollisionMesh(ray, models[1].meshes[0], transform);
-			if (collision.hit) return BODYSHOT;
-			
-			return MISS;
-		} else {
-			return 0;
-		}
-	}	
+	HitInfo hitscan(Vector3 camPos, Vector3 forward);	
 	
 	Vector3 position;
 	Vector3 velocity;
