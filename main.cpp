@@ -119,8 +119,8 @@ int main() {
 
 	Task task(TaskId::HEADSHOT, shader);
 
-    bool cursorEnabled = false;
-    SetTargetFPS(144);
+    bool cursorEnabled = true;
+    SetTargetFPS(1444);
 
     InputManager input;
     GameStateManager stateManager;
@@ -133,12 +133,6 @@ int main() {
 
         // input handling
         if (stateManager.isState(GameState::MENU)) {
-            // keyboard input for menu
-            if (input.isKeyPressed(KEY_ENTER) || input.isKeyPressed(KEY_SPACE)) {
-                stateManager.setState(GameState::PLAYING);
-                DisableCursor();
-                cursorEnabled = false;
-            }
             if (input.isKeyPressed(KEY_ESCAPE)) {
                 break; // exit game
             }
