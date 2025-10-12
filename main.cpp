@@ -7,6 +7,7 @@
 #endif
 
 #include "gamestate.h"
+#include "hitinfo.h"
 #include "inputmanager.h"
 #include "menuscreen.h"
 #include "target.h"
@@ -217,12 +218,12 @@ int main() {
                 PlaySound(shootSound);
                 ++shots;
                 for (int i = 0; i < task.targets.size(); ++i) {
-					int hitType = task.targets[i].hitscan(camera.position, forward);
-                    if (hitType) {
-						task.targets[i].hitType = hitType;
+					HitInfo hit = task.targets[i].hitscan(camera.position, forward);
+                    if (hit.hitType) {
+						task.targets[i].hitType = hit.hitType;
 						task.targets[i].lastHit = timer.elapsed();
                         ++hits;
-                        bool targetKilled = task.processHit(task.targets[i], hitType, score);
+                        bool targetKilled = task.processHit(task.targets[i], hit.hitType, score);
 						if (targetKilled) {
 							if (task.taskId == TaskId::HEADSHOT)
 								PlaySound(killSound);
