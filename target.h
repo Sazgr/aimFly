@@ -63,36 +63,29 @@ public:
 	}
 	
 	int hitscan(Vector3 camPos, Vector3 forward) {
+		Ray ray{camPos, forward};		
 		if (type == TargetType::SPHERE) {
-			Vector3 delta = Vector3Subtract(position, camPos);
-			Vector3 projection = Vector3Scale(forward, Vector3DotProduct(delta, forward) / Vector3LengthSqr(forward));
-			float distance = Vector3Distance(delta, projection);
-			return (distance <= size);
+			Matrix transform = MatrixTranslate(position.x, position.y, position.z);
+			RayCollision collision = GetRayCollisionMesh(ray, models[0].meshes[0], transform);
+			if (collision.hit) return HEADSHOT;
+			
+			return MISS;
 		} else if (type == TargetType::BODY) {
-			Vector3 delta = Vector3Subtract(position, camPos);
-			Vector3 projection = Vector3Scale(forward, Vector3DotProduct(delta, forward) / Vector3LengthSqr(forward));
-			float distance = Vector3Distance(delta, projection);
-			if (distance <= size) return HEADSHOT;
+			Matrix transform = MatrixTranslate(position.x, position.y, position.z);
+			RayCollision collision = GetRayCollisionMesh(ray, models[0].meshes[0], transform);
+			if (collision.hit) return HEADSHOT;
 			
-			delta = Vector3Subtract(Vector3Add(position, Vector3{0.0f, - 2 * size, 0.0f}), camPos);
-			projection = Vector3Scale(forward, Vector3DotProduct(delta, forward) / Vector3LengthSqr(forward));
-			distance = Vector3Distance(delta, projection);
-			if (distance <= 2 * size) return BODYSHOT;
+			transform = MatrixTranslate(position.x, position.y - 2 * size, position.z);
+			collision = GetRayCollisionMesh(ray, models[1].meshes[0], transform);
+			if (collision.hit) return BODYSHOT;
 			
-			delta = Vector3Subtract(Vector3Add(position, Vector3{0.0f, - 2.8f * size, 0.0f}), camPos);
-			projection = Vector3Scale(forward, Vector3DotProduct(delta, forward) / Vector3LengthSqr(forward));
-			distance = Vector3Distance(delta, projection);
-			if (distance <= 2 * size) return BODYSHOT;
+			transform = MatrixTranslate(position.x, position.y - 4.5f * size, position.z);
+			collision = GetRayCollisionMesh(ray, models[2].meshes[0], transform);
+			if (collision.hit) return BODYSHOT;
 			
-			delta = Vector3Subtract(Vector3Add(position, Vector3{0.0f, - 3.7f * size, 0.0f}), camPos);
-			projection = Vector3Scale(forward, Vector3DotProduct(delta, forward) / Vector3LengthSqr(forward));
-			distance = Vector3Distance(delta, projection);
-			if (distance <= 2 * size) return BODYSHOT;
-			
-			delta = Vector3Subtract(Vector3Add(position, Vector3{0.0f, - 4.5f * size, 0.0f}), camPos);
-			projection = Vector3Scale(forward, Vector3DotProduct(delta, forward) / Vector3LengthSqr(forward));
-			distance = Vector3Distance(delta, projection);
-			if (distance <= 2 * size) return BODYSHOT;
+			transform = MatrixTranslate(position.x, position.y - 4.5f * size, position.z);
+			collision = GetRayCollisionMesh(ray, models[1].meshes[0], transform);
+			if (collision.hit) return BODYSHOT;
 			
 			return MISS;
 		} else {
