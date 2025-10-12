@@ -27,7 +27,7 @@ MenuScreen::MenuScreen() {
 	
     // practice set buttons
 	menus.push_back(Menu{});
-	menus.back().addButton(442, 342, 360, 65, "BOTS", false, DOHYEON_REGULAR);
+	menus.back().addButton(442, 342, 360, 65, "PEEKING", false, DOHYEON_REGULAR);
 	menus.back().addButton(442, 442, 360, 65, "TRACKING", false, DOHYEON_REGULAR);
 	menus.back().addButton(442, 542, 360, 65, "FLICKING", true, DOHYEON_REGULAR);
 	menus.back().addButton(442, 642, 360, 65, "MICRO", false, DOHYEON_REGULAR);

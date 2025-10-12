@@ -14,6 +14,7 @@
 #include "task.h"
 #include "timer.h"
 #include "uicomponents.h"
+#include "worldobject.h"
 #include "weapon.h"
 
 #include "raylib.h"
@@ -24,6 +25,7 @@
 #include "assets/fonts/DOHYEON_REGULAR.h"
 #include "assets/fonts/ORBITRON_BOLD.h"
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -118,7 +120,7 @@ int main() {
 
     Vector3 position = {0.0f, 0.0f, 0.0f};
 
-	Task task(TaskId::HEADSHOT, shader);
+	Task task(TaskId::BOXSHOT, shader);
 
     bool cursorEnabled = true;
     SetTargetFPS(1444);
@@ -171,6 +173,9 @@ int main() {
 					case MenuAction::HEADSHOT:
 						task.setTask(TaskId::HEADSHOT, shader);
 						break;
+					case MenuAction::PEEKING:
+						task.setTask(TaskId::BOXSHOT, shader);
+						break;
 					case MenuAction::BEGIN:
 						stateManager.setState(GameState::PLAYING);
 						DisableCursor();
@@ -214,36 +219,46 @@ int main() {
 			task.tick();
 			
             // shooting
+			std::vector<HitInfo> intersections{};
+			
             if (input.isMousePressed(MOUSE_LEFT_BUTTON) ||input.isKeyPressed(KEY_SPACE)) {
                 PlaySound(shootSound);
                 ++shots;
                 for (int i = 0; i < task.targets.size(); ++i) {
 					HitInfo hit = task.targets[i].hitscan(camera.position, forward);
                     if (hit.hitType) {
-						task.targets[i].hitType = hit.hitType;
-						task.targets[i].lastHit = timer.elapsed();
-                        ++hits;
-                        bool targetKilled = task.processHit(task.targets[i], hit.hitType, score);
-						if (targetKilled) {
-							if (task.taskId == TaskId::HEADSHOT)
-								PlaySound(killSound);
-							score += 10;
-							timePerTarget = timer.elapsed() * 10 / score;
-						}
-                    } else {
-						if (timer.elapsed() - task.targets[i].lastHit >= 0.1) {
-							task.targets[i].hitType = MISS;
-						}
-					}
+						intersections.push_back(hit);
+                    }
                 }
-            } else {
-				for (int i = 0; i < task.targets.size(); ++i) {
-					if (timer.elapsed() - task.targets[i].lastHit >= 0.1) {
-						task.targets[i].hitType = MISS;
-					}
+				for (int i = 0; i < task.objects.size(); ++i) {
+					HitInfo hit = task.objects[i].hitscan(camera.position, forward);
+                    if (hit.hitType) {
+						intersections.push_back(hit);
+                    }
+                }
+            }
+			
+			std::sort(intersections.begin(), intersections.end());
+			
+			for (int i{}; i < intersections.size() && intersections[i].target != nullptr; ++i) {
+				intersections[i].target->hitType = intersections[i].hitType;
+				intersections[i].target->lastHit = timer.elapsed();
+                ++hits;
+                bool targetKilled = task.processHit(*intersections[i].target, intersections[i].hitType, score);
+				if (targetKilled) {
+					if (task.taskId == TaskId::HEADSHOT)
+						PlaySound(killSound);
+					score += 10;
+					timePerTarget = timer.elapsed() * 10 / score;
 				}
 			}
-
+			
+			for (int i = 0; i < task.targets.size(); ++i) {
+				if (timer.elapsed() - task.targets[i].lastHit >= 0.1) {
+					task.targets[i].hitType = MISS;
+				}
+			}
+			
             // esc to return to menu
             if (input.isKeyPressed(KEY_ESCAPE)) {
                 stateManager.setState(GameState::MENU);
@@ -265,7 +280,7 @@ int main() {
 
                     BeginMode3D(camera);
                         BeginShaderMode(shader);
-                            DrawCube(Vector3{0.0f, -4.0f, 0.0f}, 54.0, 2.0, 20.0, GRAY);
+                            DrawCube(Vector3{0.0f, -3.0f, 0.0f}, 54.0, 2.0, 20.0, GRAY);
                             DrawCube(Vector3{25.0f, 4.0f, 0.0f}, 2.0, 14.0, 20.0, GRAY);
                         EndShaderMode();
 

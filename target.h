@@ -1,21 +1,12 @@
 #ifndef TARGET_H
 #define TARGET_H
 
+#include "enums.h"
+
 #include "raylib.h"
 #include "raymath.h"
 
 #include <vector>
-
-enum class TargetType {
-    SPHERE,
-	BODY,
-};
-
-enum HitType {
-    MISS,
-	HEADSHOT,
-	BODYSHOT,
-};
 
 struct HitInfo;
 

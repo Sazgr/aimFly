@@ -1,6 +1,7 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include "worldobject.h"
 #include "target.h"
 
 #include <cassert>
@@ -11,7 +12,7 @@ enum class TaskId {
     GRIDSHOT,
 	STRAFESHOT,
 	HEADSHOT,
-	PEEKSHOT,
+	BOXSHOT,
 };
 
 class Task {
@@ -35,9 +36,17 @@ public:
 		} else if (taskId == TaskId::HEADSHOT) {
 			targets.emplace_back(TargetType::BODY, Vector3{20.0f, 0.0f, 0.0f}, 0.3f);
 			targets[0].velocity = Vector3{0, 0, 0.02f};
+		} else if (taskId == TaskId::BOXSHOT) {
+			targets.emplace_back(TargetType::BODY, Vector3{20.0f, 0.0f, 0.0f}, 0.3f);
+			targets[0].velocity = Vector3{0, 0, 0.02f};
+			
+			objects.emplace_back(Vector3{15.0f, -1.0f, 0.0f}, 2, 3, 2, true);
 		}
 		for (int i = 0; i < targets.size(); ++i) {
 			targets[i].addShader(shader);
+		}
+		for (int i = 0; i < objects.size(); ++i) {
+			objects[i].addShader(shader);
 		}
 	}
 	
@@ -65,6 +74,11 @@ public:
 				turnChance = 100; //target going back to center
 			}
 			if (std::rand() % 30 == 0) {
+				targets[0].velocity.z = -targets[0].velocity.z;
+			}
+			targets[0].position = Vector3Add(targets[0].position, targets[0].velocity);
+		} else if (taskId == TaskId::BOXSHOT) {
+			if (abs(targets[0].position.z) > 3) {
 				targets[0].velocity.z = -targets[0].velocity.z;
 			}
 			targets[0].position = Vector3Add(targets[0].position, targets[0].velocity);
@@ -98,6 +112,14 @@ public:
 				return true;
 			}
 			return false;
+		} else if (taskId == TaskId::BOXSHOT) {
+			target.health -= (hitType == HEADSHOT ? 4 : 1);
+			if (target.health <= 0) {
+				target.health = 4;
+				target.position.z = 0;
+				return true;
+			}
+			return false;
 		} else {
 			assert(false);
 		}
@@ -107,9 +129,13 @@ public:
 		for (int i = 0; i < targets.size(); ++i) {
 			targets[i].draw();
 		}
+		for (int i = 0; i < objects.size(); ++i) {
+			objects[i].draw();
+		}
 	}
 	
 	std::vector<Target> targets{};
+	std::vector<WorldObject> objects{};
 	TaskId taskId;
 	bool targetPresent[3][3]{
 		{0, 1, 0},
