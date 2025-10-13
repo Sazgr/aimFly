@@ -19,23 +19,30 @@ extern Font ORBITRON_BOLD;
 MenuScreen::MenuScreen() {
     // main buttons
 	menus.push_back(Menu{});
-	menus.back().addButton(40, 342, 360, 65, "PRACTICE", true, DOHYEON_REGULAR);
-	menus.back().addButton(40, 442, 360, 65, "CALIBRATE", false, DOHYEON_REGULAR);
-	menus.back().addButton(40, 542, 360, 65, "SETTINGS", false, DOHYEON_REGULAR);
-	menus.back().addButton(40, 642, 360, 65, "CREDITS", false, DOHYEON_REGULAR);
-	menus.back().addButton(40, 742, 360, 65, "EXIT", false, DOHYEON_REGULAR);
+	menus.back().addButton(40, 342, 360, 65, "PRACTICE", true, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
+	menus.back().addButton(40, 442, 360, 65, "CALIBRATE", false, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
+	menus.back().addButton(40, 542, 360, 65, "SETTINGS", false, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
+	menus.back().addButton(40, 642, 360, 65, "CREDITS", false, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
+	menus.back().addButton(40, 742, 360, 65, "EXIT", false, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
 	
     // practice set buttons
 	menus.push_back(Menu{});
-	menus.back().addButton(442, 342, 360, 65, "PEEKING", false, DOHYEON_REGULAR);
-	menus.back().addButton(442, 442, 360, 65, "TRACKING", false, DOHYEON_REGULAR);
-	menus.back().addButton(442, 542, 360, 65, "FLICKING", true, DOHYEON_REGULAR);
-	menus.back().addButton(442, 642, 360, 65, "MICRO", false, DOHYEON_REGULAR);
-	menus.back().addButton(442, 742, 360, 65, "REACTION", false, DOHYEON_REGULAR);
-	menus.back().addButton(442, 842, 360, 65, "HEADSHOT", false, DOHYEON_REGULAR);
+	menus.back().addButton(442, 342, 360, 65, "PEEKING", false, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
+	menus.back().addButton(442, 442, 360, 65, "TRACKING", false, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
+	menus.back().addButton(442, 542, 360, 65, "FLICKING", true, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
+	menus.back().addButton(442, 642, 360, 65, "MICRO", false, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
+	menus.back().addButton(442, 742, 360, 65, "REACTION", false, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
+	menus.back().addButton(442, 842, 360, 65, "HEADSHOT", false, BUTTON_STYLE_0, SELECTED_STYLE_0, DOHYEON_REGULAR);
 	
+	// menu screen begin button
 	menus.push_back(Menu{});
-	menus.back().addButton(1640, 944, 240, 65, "BEGIN", true, DOHYEON_REGULAR, false);
+	menus.back().addButton(1640, 944, 240, 65, "BEGIN", true, BUTTON_STYLE_1, BUTTON_STYLE_1, DOHYEON_REGULAR);
+	
+	//pause menu
+	menus.push_back(Menu{});
+	menus.back().addButton(725, 439, 480, 65, "RESUME", true, BUTTON_STYLE_2, BUTTON_STYLE_2, DOHYEON_REGULAR);
+	menus.back().addButton(725, 535, 480, 65, "RESTART", true, BUTTON_STYLE_2, BUTTON_STYLE_2, DOHYEON_REGULAR);
+	menus.back().addButton(725, 631, 480, 65, "EXIT TASK", true, BUTTON_STYLE_3, BUTTON_STYLE_2, DOHYEON_REGULAR);
 }
 
 std::pair<std::string, std::string> MenuScreen::getDateTime() {
@@ -68,7 +75,7 @@ void MenuScreen::drawStat(float aspectScale, int offsetX, int offsetY, int x, st
 	#undef SCL
 }
 
-MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader) {
+MenuAction MenuScreen::renderMenu(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader) {
     float aspectScale = (float)scaledWidth / (float)nativeWidth;
     
     #define SCL(val) ((float)(val) * aspectScale)
@@ -76,7 +83,7 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
     int centerX = offsetX + scaledWidth / 2; // new top left for 16:9 (0,0)
     int centerY = offsetY + scaledHeight / 2;
 
-    DrawRectangle(offsetX, offsetY, scaledWidth, scaledHeight, BACKGROUND_COLOR); // background
+    DrawRectangle(offsetX, offsetY, scaledWidth, scaledHeight, BACKGROUND_COLOR_100); // background
 	
 	//top right pattern
 	for (int i{0}; i < 12; ++i) {
@@ -88,14 +95,14 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
         };
         DrawTriangleFan(points, 4, GRAY_0_COLOR_40);
 	}
-	DrawRectangle(offsetX + SCL(490), offsetY + SCL(20), SCL(200), SCL(240), BACKGROUND_COLOR);
-	DrawRectangle(offsetX + SCL(1880), offsetY + SCL(20), SCL(40), SCL(240), BACKGROUND_COLOR);
+	DrawRectangle(offsetX + SCL(490), offsetY + SCL(20), SCL(200), SCL(240), BACKGROUND_COLOR_100);
+	DrawRectangle(offsetX + SCL(1880), offsetY + SCL(20), SCL(40), SCL(240), BACKGROUND_COLOR_100);
 	
 	Gradient::drawGradientRect( // background PRIMARY_0 accent gradient
         gradientShader, 
         Rectangle{ (float)offsetX, (float)offsetY, (float)SCL(500), (float)scaledHeight },
         hexToColor("#273A3B", 1.0f),
-        BACKGROUND_COLOR, 
+        BACKGROUND_COLOR_100, 
         false
     );
 	
@@ -189,7 +196,7 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
 	Vector2 mousePos = input.getMousePosition();
 	bool mouseClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
 	
-	for (int i{}; i < menus.size(); ++i) {
+	for (int i{}; i < 3; ++i) {
 		if (!menus[i].visible) continue;
 		for (int j{}; j < menus[i].buttons.size(); ++j) {
 			if (menus[i].buttons[j].clicked(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
@@ -201,7 +208,7 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
 			menus[i].buttons[j].draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked);
 		}
 	}
-	for (int i{}; i < menus.size(); ++i) {
+	for (int i{}; i < 3; ++i) {
 		if (!menus[i].visible) continue;
 		for (int j{}; j < menus[i].buttons.size(); ++j) {
 			if (menus[i].buttons[j].clicked(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
@@ -216,6 +223,70 @@ MenuAction MenuScreen::render(int screenWidth, int screenHeight, int offsetX, in
 
     #undef SCL
     return MenuAction::NONE; // default on load
+}
+
+MenuAction MenuScreen::renderPauseOverlay(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader) {
+    float aspectScale = (float)scaledWidth / (float)nativeWidth;
+    
+    #define SCL(val) ((float)(val) * aspectScale)
+
+    int centerX = offsetX + scaledWidth / 2; // new top left for 16:9 (0,0)
+    int centerY = offsetY + scaledHeight / 2;
+	
+	DrawRectangle(offsetX + SCL(0), offsetY + SCL(0), SCL(1920), SCL(1080), BACKGROUND_COLOR_80);
+	
+	DrawRectangle(offsetX + SCL(695), offsetY + SCL(354), SCL(10), SCL(372), GRAY_6_COLOR_100); //panel gradient start
+	
+	Gradient::drawGradientRect( // panel gradient
+        gradientShader, 
+        Rectangle{(float)offsetX + SCL(705), (float)offsetY + SCL(354), (float)SCL(520), (float)SCL(372)},
+        PRIMARY_0_COLOR_100,
+        PRIMARY_0_COLOR_20, 
+        false
+    );
+	
+	//DrawRectangle(offsetX + SCL(725), offsetY + SCL(360), SCL(163), SCL(50), GRAY_2_COLOR_100);
+	DrawTextEx(ORBITRON_BOLD, "paused", Vector2{offsetX + SCL(725), offsetY + SCL(360)}, SCL(50), 1, GRAY_6_COLOR_100);
+	
+	DrawRectangle(offsetX + SCL(725), offsetY + SCL(421), SCL(480), SCL(2), GRAY_5_COLOR_100); //selection column 2 upper border
+	DrawTriangle(
+        Vector2{(float)offsetX + SCL(1145), (float)offsetY + SCL(421)},
+        Vector2{(float)offsetX + SCL(1149), (float)offsetY + SCL(421)},
+        Vector2{(float)offsetX + SCL(1149), (float)offsetY + SCL(417)},
+        GRAY_5_COLOR_100
+    );
+	DrawRectangle(offsetX + SCL(1149), offsetY + SCL(417), SCL(56), SCL(4), GRAY_5_COLOR_100);
+	
+	Vector2 mousePos = input.getMousePosition();
+	bool mouseClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
+	
+	for (int i{3}; i < 4; ++i) {
+		if (!menus[i].visible) continue;
+		for (int j{}; j < menus[i].buttons.size(); ++j) {
+			if (menus[i].buttons[j].clicked(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
+				menus[i].selectedIndex = j;
+			}
+		}
+		for (int j{}; j < menus[i].buttons.size(); ++j) {
+			menus[i].buttons[j].isSelected = (j == menus[i].selectedIndex);
+			menus[i].buttons[j].draw(offsetX, offsetY, aspectScale, mousePos, mouseClicked);
+		}
+	}
+	for (int i{3}; i < 4; ++i) {
+		if (!menus[i].visible) continue;
+		for (int j{}; j < menus[i].buttons.size(); ++j) {
+			if (menus[i].buttons[j].clicked(offsetX, offsetY, aspectScale, mousePos, mouseClicked)) {
+				auto it = buttonActions.find(menus[i].buttons[j].text);
+				if (it != buttonActions.end()) {
+					std::cout << menus[i].buttons[j].text << std::endl;
+					return it->second;
+				}
+			}
+		}
+	}
+	
+	#undef SCL
+	return MenuAction::NONE; //default on load
 }
 
 bool MenuScreen::isPointInRect(Vector2 point, Rectangle rect) {
