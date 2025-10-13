@@ -133,7 +133,7 @@ int main() {
 
     while (!WindowShouldClose()) {
         input.update();
-
+        timer.updateDeltaTime();
         // input handling
         if (stateManager.isState(GameState::MENU)) {
             if (input.isKeyPressed(KEY_ESCAPE)) {
@@ -298,7 +298,7 @@ int main() {
             if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(walk_d, speed));
             if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(walk_d, speed));
 
-			task.tick();
+			task.tick(timer.getDeltaTime());
 			
             // shooting
 			std::vector<HitInfo> intersections{};
