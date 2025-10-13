@@ -7,6 +7,8 @@
 #include <cassert>
 #include <vector>
 
+constexpr float walkSpeed = 3.0f;
+
 enum class TaskId {
     NONE,
     GRIDSHOT,
@@ -36,13 +38,13 @@ public:
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 1.0f}, 0.3f);
 		} else if (taskId == TaskId::STRAFESHOT) {
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 0.0f}, 0.4f);
-			targets[0].velocity = Vector3{0, 0, 0.02f};
+			targets[0].velocity = Vector3{0, 0, walkSpeed};
 		} else if (taskId == TaskId::HEADSHOT) {
 			targets.emplace_back(TargetType::BODY, Vector3{20.0f, 0.0f, 0.0f}, 0.3f);
-			targets[0].velocity = Vector3{0, 0, 0.02f};
+			targets[0].velocity = Vector3{0, 0, walkSpeed};
 		} else if (taskId == TaskId::BOXSHOT) {
 			targets.emplace_back(TargetType::BODY, Vector3{20.0f, 0.0f, 0.0f}, 0.3f);
-			targets[0].velocity = Vector3{0, 0, 0.02f};
+			targets[0].velocity = Vector3{0, 0, walkSpeed};
 			
 			objects.emplace_back(Vector3{15.0f, -1.0f, 0.0f}, 2, 3, 2, true);
 		}
@@ -54,7 +56,7 @@ public:
 		}
 	}
 	
-	void tick() {
+	void tick(double deltaTime) {
 		if (taskId == TaskId::GRIDSHOT) {
 			; //no processing needed
 		} else if (taskId == TaskId::STRAFESHOT) {
@@ -68,7 +70,7 @@ public:
 			if (std::rand() % 30 == 0) {
 				targets[0].velocity.z = -targets[0].velocity.z;
 			}
-			targets[0].position = Vector3Add(targets[0].position, targets[0].velocity);
+			targets[0].position = Vector3Add(targets[0].position, Vector3Scale(targets[0].velocity, (float)deltaTime));
 		} else if (taskId == TaskId::HEADSHOT) {
 			int turnChance = 50;
 			if ((targets[0].position.z > 4 && targets[0].velocity.z > 0) || (targets[0].position.z < -4 && targets[0].velocity.z < 0)) {
@@ -80,12 +82,12 @@ public:
 			if (std::rand() % 30 == 0) {
 				targets[0].velocity.z = -targets[0].velocity.z;
 			}
-			targets[0].position = Vector3Add(targets[0].position, targets[0].velocity);
+			targets[0].position = Vector3Add(targets[0].position, Vector3Scale(targets[0].velocity, (float)deltaTime));
 		} else if (taskId == TaskId::BOXSHOT) {
 			if (abs(targets[0].position.z) > 3) {
 				targets[0].velocity.z = -targets[0].velocity.z;
 			}
-			targets[0].position = Vector3Add(targets[0].position, targets[0].velocity);
+			targets[0].position = Vector3Add(targets[0].position, Vector3Scale(targets[0].velocity, (float)deltaTime));
 		}
 	}
 	
