@@ -288,15 +288,17 @@ int main() {
             if (pitch < -0.5 * PI + 0.01) pitch = -0.5 * PI + 0.01;
 
             // movement
-            float speed = 0.02f;
+            float speed = 5.0f;
+            float scaledSpeed = speed * (float)timer.getDeltaTime();
 			Vector3 walk_w = forward;
 			walk_w.y = 0;
 			walk_w = Vector3Normalize(walk_w);
 			Vector3 walk_d = Vector3CrossProduct(walk_w, Vector3{0, 1, 0});
-            if (input.isKeyHeld(KEY_W)) camera.position = Vector3Add(camera.position, Vector3Scale(walk_w, speed));
-            if (input.isKeyHeld(KEY_S)) camera.position = Vector3Subtract(camera.position, Vector3Scale(walk_w, speed));
-            if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(walk_d, speed));
-            if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(walk_d, speed));
+
+            if (input.isKeyHeld(KEY_W)) camera.position = Vector3Add(camera.position, Vector3Scale(walk_w, scaledSpeed));
+            if (input.isKeyHeld(KEY_S)) camera.position = Vector3Subtract(camera.position, Vector3Scale(walk_w, scaledSpeed));
+            if (input.isKeyHeld(KEY_D)) camera.position = Vector3Add(camera.position, Vector3Scale(walk_d, scaledSpeed));
+            if (input.isKeyHeld(KEY_A)) camera.position = Vector3Subtract(camera.position, Vector3Scale(walk_d, scaledSpeed));
 
 			task.tick(timer.getDeltaTime());
 			

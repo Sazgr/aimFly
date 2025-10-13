@@ -7,7 +7,7 @@
 #include <cassert>
 #include <vector>
 
-constexpr float walkSpeed = 3.0f;
+constexpr float targetSpeed = 3.0f;
 
 enum class TaskId {
     NONE,
@@ -38,13 +38,13 @@ public:
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 1.0f}, 0.3f);
 		} else if (taskId == TaskId::STRAFESHOT) {
 			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, 0.0f}, 0.4f);
-			targets[0].velocity = Vector3{0, 0, walkSpeed};
+			targets[0].velocity = Vector3{0, 0, targetSpeed};
 		} else if (taskId == TaskId::HEADSHOT) {
 			targets.emplace_back(TargetType::BODY, Vector3{20.0f, 0.0f, 0.0f}, 0.3f);
-			targets[0].velocity = Vector3{0, 0, walkSpeed};
+			targets[0].velocity = Vector3{0, 0, targetSpeed};
 		} else if (taskId == TaskId::BOXSHOT) {
 			targets.emplace_back(TargetType::BODY, Vector3{20.0f, 0.0f, 0.0f}, 0.3f);
-			targets[0].velocity = Vector3{0, 0, walkSpeed};
+			targets[0].velocity = Vector3{0, 0, targetSpeed};
 			
 			objects.emplace_back(Vector3{15.0f, -1.0f, 0.0f}, 2, 3, 2, true);
 		}
