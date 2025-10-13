@@ -344,6 +344,7 @@ int main() {
             // esc to return to menu
             if (input.isKeyPressed(KEY_ESCAPE)) {
                 stateManager.setState(GameState::PAUSED);
+				menuScreen.menus[3].selectedIndex = -1;
                 EnableCursor();
                 cursorEnabled = true;
             }
