@@ -22,6 +22,9 @@ enum class MenuAction {
 	FLICKING,
 	HEADSHOT,
 	BEGIN,
+	RESUME,
+	RESTART,
+	EXIT_TASK,
 };
 
 // map button text to action
@@ -36,6 +39,9 @@ const std::unordered_map<std::string, MenuAction> buttonActions = {
 	{"FLICKING", MenuAction::FLICKING},
 	{"HEADSHOT", MenuAction::HEADSHOT},
 	{"BEGIN", MenuAction::BEGIN},
+	{"RESUME", MenuAction::RESUME},
+	{"RESTART", MenuAction::RESTART},
+	{"EXIT TASK", MenuAction::EXIT_TASK},
 };
 
 class MenuScreen {
@@ -48,7 +54,10 @@ public:
 	MenuScreen();
 	std::pair<std::string, std::string> getDateTime();
 	void drawStat(float aspectScale, int offsetX, int offsetY, int x, std::string statTitle, std::string statValue);
-    MenuAction render(int screenWidth, int screenHeight, int offsetX, int offsetY, 
+    MenuAction renderMenu(int screenWidth, int screenHeight, int offsetX, int offsetY, 
+                      int scaledWidth, int scaledHeight, InputManager& input, 
+                      int nativeWidth, int nativeHeight, Shader& gradientShader);
+	MenuAction renderPauseOverlay(int screenWidth, int screenHeight, int offsetX, int offsetY, 
                       int scaledWidth, int scaledHeight, InputManager& input, 
                       int nativeWidth, int nativeHeight, Shader& gradientShader);
 };

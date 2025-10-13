@@ -123,7 +123,7 @@ int main() {
 	Task task(TaskId::BOXSHOT, shader);
 
     bool cursorEnabled = true;
-    SetTargetFPS(1444);
+    SetTargetFPS(144);
 
     InputManager input;
     GameStateManager stateManager;
@@ -144,7 +144,7 @@ int main() {
 				ClearBackground(BLACK);
 				
 				// handle menu rendering and clicking with correct 16:9 viewport
-                MenuAction action = menuScreen.render(
+                MenuAction action = menuScreen.renderMenu(
                     screenWidth, screenHeight, offsetX, offsetY, 
                     scaledWidth, scaledHeight, input,
                     NATIVE_WIDTH, NATIVE_HEIGHT,
@@ -188,7 +188,89 @@ int main() {
                     break; // exit main loop
                 }
 			EndDrawing();
-        } else if (stateManager.isState(GameState::PLAYING)) {			
+        } else if (stateManager.isState(GameState::PAUSED)) {
+			Vector3 forward = {
+                cosf(pitch) * cosf(yaw),
+                sinf(pitch),
+                cosf(pitch) * sinf(yaw)
+            };
+            forward = Vector3Normalize(forward);
+            Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, Vector3{0, 1, 0}));
+			
+			BeginDrawing();
+				ClearBackground(BLACK);
+				
+				BeginTextureMode(gameTexture);
+                    ClearBackground(SKYBLUE);
+
+                    BeginMode3D(camera);
+                        BeginShaderMode(shader);
+                            DrawCube(Vector3{0.0f, -3.0f, 0.0f}, 54.0, 2.0, 20.0, GRAY);
+                            DrawCube(Vector3{25.0f, 4.0f, 0.0f}, 2.0, 14.0, 20.0, GRAY);
+                        EndShaderMode();
+
+                        task.draw();
+
+                        float lightPos[3] = {lightPosition.x, lightPosition.y, lightPosition.z};
+                        SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
+
+                        float camPos[3] = {camera.position.x, camera.position.y, camera.position.z};
+                        SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camPos, SHADER_UNIFORM_VEC3);
+
+                        SetShaderValue(shader, specularExponentLoc, &specularExponent, SHADER_UNIFORM_FLOAT);
+
+                        Vector3 upVec = Vector3CrossProduct(right, forward);
+                        position = Vector3Add(camera.position,
+                            Vector3Add(
+                                Vector3Scale(forward, 1.8f),
+                                Vector3Add(
+                                    Vector3Scale(right, 0.8f),
+                                    Vector3Scale(upVec, -0.5f)
+                                )
+                            )
+                        );
+
+                        weapon.model.transform = MatrixRotateXYZ(Vector3{0, -yaw, pitch});
+                        weapon.draw(position, 0.1f);
+                    EndMode3D();
+                EndTextureMode();
+
+                // draw the texture centered on screen with proper 16:9 letterboxing
+                DrawTexturePro(
+                    gameTexture.texture,
+                    Rectangle{0, 0, (float)NATIVE_WIDTH, -(float)NATIVE_HEIGHT}, // flip Y
+                    Rectangle{(float)offsetX, (float)offsetY, (float)scaledWidth, (float)scaledHeight},
+                    Vector2{0,0},
+                    0.0f,
+                    WHITE
+                );
+				
+				MenuAction action = menuScreen.renderPauseOverlay(
+                    screenWidth, screenHeight, offsetX, offsetY, 
+                    scaledWidth, scaledHeight, input,
+                    NATIVE_WIDTH, NATIVE_HEIGHT,
+                    gradientShader
+                );
+
+                switch (action) {
+                    case MenuAction::RESUME:
+						stateManager.setState(GameState::PLAYING);
+						DisableCursor();
+						cursorEnabled = false;
+						break;
+                    case MenuAction::RESTART:
+						stateManager.setState(GameState::PLAYING);
+						DisableCursor();
+						cursorEnabled = false;
+						break;
+                    case MenuAction::EXIT_TASK:
+						stateManager.setState(GameState::MENU);
+						break;
+                    default:
+                        break;
+                }
+			EndDrawing();
+		} else if (stateManager.isState(GameState::PLAYING)) {
             // calculate forward/right vectors only when playing
             Vector3 forward = {
                 cosf(pitch) * cosf(yaw),
@@ -261,7 +343,7 @@ int main() {
 			
             // esc to return to menu
             if (input.isKeyPressed(KEY_ESCAPE)) {
-                stateManager.setState(GameState::MENU);
+                stateManager.setState(GameState::PAUSED);
                 EnableCursor();
                 cursorEnabled = true;
             }

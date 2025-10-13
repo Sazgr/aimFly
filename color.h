@@ -6,13 +6,20 @@
 
 Color hexToColor(const char* hex, float opacity);
 
-const Color BACKGROUND_COLOR = hexToColor("#2A2D32", 1.0f);
+const Color BACKGROUND_COLOR_100 = hexToColor("#2A2D32", 1.0f);
+const Color BACKGROUND_COLOR_80 = hexToColor("#2A2D32", 0.8f);
+
 const Color PRIMARY_0_COLOR_100 = hexToColor("#09B58A", 1.0f);
+const Color PRIMARY_0_COLOR_20 = hexToColor("#09B58A", 0.2f);
 const Color PRIMARY_0_COLOR_10 = hexToColor("#09B58A", 0.1f);
 
 const Color PRIMARY_1_COLOR_100 = hexToColor("#23AF8C", 1.0f);
 
 const Color PRIMARY_2_COLOR_100 = hexToColor("#52736B", 1.0f);
+
+const Color PRIMARY_3_COLOR_100 = hexToColor("#123D33", 1.0f);
+
+const Color PRIMARY_4_COLOR_100 = hexToColor("#36A495", 1.0f);
 
 const Color GRAY_0_COLOR_40 = hexToColor("#313439", 0.8f);
 
