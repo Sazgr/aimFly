@@ -42,7 +42,7 @@ int main() {
     constexpr float TARGET_ASPECT = 16.0f / 9.0f;
 
     float sensitivity = 0.19f;
-    float sensitivityConstant = 0.00122f;
+    float sensitivityConstant = 0.00122f; //do not change
 	
 	TaskData td{};
     Timer timer;
