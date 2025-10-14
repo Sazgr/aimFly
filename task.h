@@ -56,7 +56,13 @@ public:
 		}
 	}
 	
+	void resetTimer() {
+		time = 0.0;
+	}
+	
 	void tick(double deltaTime) {
+		time += deltaTime;
+		
 		if (taskId == TaskId::GRIDSHOT) {
 			; //no processing needed
 		} else if (taskId == TaskId::STRAFESHOT) {
@@ -148,6 +154,7 @@ public:
 		{0, 1, 1},
 		{0, 0, 0}
 	};
+	double time{0.0};
 };
 
 #endif

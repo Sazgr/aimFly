@@ -12,6 +12,7 @@
 #include "menuscreen.h"
 #include "target.h"
 #include "task.h"
+#include "taskdata.h"
 #include "timer.h"
 #include "uicomponents.h"
 #include "worldobject.h"
@@ -42,11 +43,8 @@ int main() {
 
     float sensitivity = 0.19f;
     float sensitivityConstant = 0.00122f;
-
-    int score = 0;
-    int shots = 0;
-    int hits = 0;
-	double timePerTarget = 0;
+	
+	TaskData td{};
     Timer timer;
 
     SetConfigFlags(FLAG_WINDOW_UNDECORATED | FLAG_MSAA_4X_HINT);
@@ -148,7 +146,7 @@ int main() {
                     screenWidth, screenHeight, offsetX, offsetY, 
                     scaledWidth, scaledHeight, input,
                     NATIVE_WIDTH, NATIVE_HEIGHT,
-                    gradientShader
+                    gradientShader, td
                 );
 
                 switch (action) {
@@ -178,6 +176,8 @@ int main() {
 						break;
 					case MenuAction::BEGIN:
 						stateManager.setState(GameState::PLAYING);
+						task.resetTimer();
+						td = TaskData{};
 						DisableCursor();
 						cursorEnabled = false;
 						break;
@@ -260,6 +260,8 @@ int main() {
 						break;
                     case MenuAction::RESTART:
 						stateManager.setState(GameState::PLAYING);
+						task.resetTimer();
+						td = TaskData{};
 						DisableCursor();
 						cursorEnabled = false;
 						break;
@@ -271,6 +273,13 @@ int main() {
                 }
 			EndDrawing();
 		} else if (stateManager.isState(GameState::PLAYING)) {
+			
+			if (task.time >= td.taskDuration) {
+				stateManager.setState(GameState::MENU);
+				EnableCursor();
+				cursorEnabled = true;
+			}
+			
             // calculate forward/right vectors only when playing
             Vector3 forward = {
                 cosf(pitch) * cosf(yaw),
@@ -307,7 +316,7 @@ int main() {
 			
             if (input.isMousePressed(MOUSE_LEFT_BUTTON) ||input.isKeyPressed(KEY_SPACE)) {
                 PlaySound(shootSound);
-                ++shots;
+                ++td.shots;
                 for (int i = 0; i < task.targets.size(); ++i) {
 					HitInfo hit = task.targets[i].hitscan(camera.position, forward);
                     if (hit.hitType) {
@@ -327,13 +336,13 @@ int main() {
 			for (int i{}; i < intersections.size() && intersections[i].target != nullptr; ++i) {
 				intersections[i].target->hitType = intersections[i].hitType;
 				intersections[i].target->lastHit = timer.elapsed();
-                ++hits;
-                bool targetKilled = task.processHit(*intersections[i].target, intersections[i].hitType, score);
+                ++td.hits;
+                bool targetKilled = task.processHit(*intersections[i].target, intersections[i].hitType, td.score);
 				if (targetKilled) {
 					if (task.taskId == TaskId::HEADSHOT)
 						PlaySound(killSound);
-					score += 10;
-					timePerTarget = timer.elapsed() * 10 / score;
+					td.score += 10;
+					td.timePerTarget = task.time * 10 / td.score;
 				}
 			}
 			
@@ -419,10 +428,14 @@ int main() {
                 float fontSize = (float)(20 * aspectScale);
                 int lineSpacing = (int)(40 * aspectScale);
 
-                DrawTextEx(DOHYEON_REGULAR, (std::string{"Score: "} + std::to_string(score)).c_str(), (Vector2){(float)uiX, (float)uiY}, fontSize, 0.0f, BLACK);
-                DrawTextEx(DOHYEON_REGULAR, (std::string{"Accuracy: "} + std::to_string(shots == 0 ? 0 : hits * 100 / shots) + "%").c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing}, fontSize, 0.0f, BLACK);
-                DrawTextEx(DOHYEON_REGULAR, (std::string{"Time per target: "} + std::to_string(static_cast<int>(timePerTarget * 1000)) + "ms").c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing * 2}, fontSize, 0.0f, BLACK);
-                DrawTextEx(DOHYEON_REGULAR, (std::string{"Time: "} + std::to_string(timer.elapsed())).c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing * 3}, fontSize, 0.0f, BLACK);
+                DrawTextEx(DOHYEON_REGULAR, (std::string{"Score: "} + std::to_string(td.score)).c_str(), (Vector2){(float)uiX, (float)uiY}, fontSize, 0.0f, BLACK);
+                DrawTextEx(DOHYEON_REGULAR, (std::string{"Accuracy: "} + std::to_string(td.shots == 0 ? 0 : td.hits * 100 / td.shots) + "%").c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing}, fontSize, 0.0f, BLACK);
+                DrawTextEx(DOHYEON_REGULAR, (std::string{"Time per target: "} + std::to_string(static_cast<int>(td.timePerTarget * 1000)) + "ms").c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing * 2}, fontSize, 0.0f, BLACK);
+                
+				int secsLeft = td.taskDuration - task.time;
+				std::string secondStr = std::to_string(secsLeft % 60);
+				if (secondStr.size() == 1) secondStr = "0" + secondStr;
+				DrawTextEx(DOHYEON_REGULAR, (std::string{"Time: "} + std::to_string(secsLeft / 60) + ":" + secondStr).c_str(), (Vector2){(float)uiX, (float)uiY + lineSpacing * 3}, fontSize, 0.0f, BLACK);
 
                 DrawFPS(10, 10);
 			EndDrawing();

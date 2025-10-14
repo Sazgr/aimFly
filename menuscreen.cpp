@@ -1,12 +1,13 @@
 #include "color.h"
+#include "inputmanager.h"
 #include "menuscreen.h"
 #include "uicomponents.h"
-#include "inputmanager.h"
 
 #include "rlgl.h"
 #include "raylib.h"
 
 #include <algorithm>
+#include <cmath>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
@@ -75,7 +76,7 @@ void MenuScreen::drawStat(float aspectScale, int offsetX, int offsetY, int x, st
 	#undef SCL
 }
 
-MenuAction MenuScreen::renderMenu(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader) {
+MenuAction MenuScreen::renderMenu(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader, TaskData& taskData) {
     float aspectScale = (float)scaledWidth / (float)nativeWidth;
     
     #define SCL(val) ((float)(val) * aspectScale)
@@ -145,10 +146,12 @@ MenuAction MenuScreen::renderMenu(int screenWidth, int screenHeight, int offsetX
 	DrawTextEx(DOHYEON_REGULAR, "PLAY TIME", Vector2{offsetX + SCL(757), offsetY + SCL(86)}, SCL(20), 1, GRAY_4_COLOR_100);
 	DrawTextEx(DOHYEON_REGULAR, "100hr", Vector2{offsetX + SCL(757), offsetY + SCL(120)}, SCL(40), 1, GRAY_6_COLOR_100);
 	
-	drawStat(aspectScale, offsetX, offsetY, 1217, "SCORE", "670");
-	drawStat(aspectScale, offsetX, offsetY, 1417, "ACCURACY", "88.32%");
-	drawStat(aspectScale, offsetX, offsetY, 1617, "AVG TIME", "52ms");
-	drawStat(aspectScale, offsetX, offsetY, 1817, "SPEED", "82mm/s");
+	std::string accuracyStr = std::to_string(taskData.shots == 0 ? 0 : 100.0 * taskData.hits / taskData.shots);
+	accuracyStr = accuracyStr.substr(0, 5);
+	drawStat(aspectScale, offsetX, offsetY, 1217, "TIME", std::to_string(static_cast<int>(taskData.taskDuration)) + "s");
+	drawStat(aspectScale, offsetX, offsetY, 1417, "SCORE", std::to_string(taskData.score));
+	drawStat(aspectScale, offsetX, offsetY, 1617, "ACCURACY", accuracyStr + "%");
+	drawStat(aspectScale, offsetX, offsetY, 1817, "AVG TIME", std::to_string(static_cast<int>(taskData.timePerTarget * 1000)) + "ms");
 	
 	DrawRectangle(offsetX + SCL(761), offsetY + SCL(219), SCL(4), SCL(4), GRAY_5_COLOR_80); // stat panel accent
 	DrawRectangle(offsetX + SCL(780), offsetY + SCL(219), SCL(213), SCL(4), GRAY_5_COLOR_80);
