@@ -2,6 +2,7 @@
 
 #include "inputmanager.h"
 #include "menu.h"
+#include "taskdata.h"
 #include "uicomponents.h"
 
 #include "raylib.h"
@@ -56,7 +57,7 @@ public:
 	void drawStat(float aspectScale, int offsetX, int offsetY, int x, std::string statTitle, std::string statValue);
     MenuAction renderMenu(int screenWidth, int screenHeight, int offsetX, int offsetY, 
                       int scaledWidth, int scaledHeight, InputManager& input, 
-                      int nativeWidth, int nativeHeight, Shader& gradientShader);
+                      int nativeWidth, int nativeHeight, Shader& gradientShader, TaskData& taskData);
 	MenuAction renderPauseOverlay(int screenWidth, int screenHeight, int offsetX, int offsetY, 
                       int scaledWidth, int scaledHeight, InputManager& input, 
                       int nativeWidth, int nativeHeight, Shader& gradientShader);
