@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
@@ -292,6 +293,31 @@ MenuAction MenuScreen::renderPauseOverlay(int screenWidth, int screenHeight, int
 	return MenuAction::NONE; //default on load
 }
 
+void MenuScreen::renderCountdown(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader, Task& task) {
+    float aspectScale = (float)scaledWidth / (float)nativeWidth;
+    
+    #define SCL(val) ((float)(val) * aspectScale)
+
+    int centerX = offsetX + scaledWidth / 2; // new top left for 16:9 (0,0)
+    int centerY = offsetY + scaledHeight / 2;;
+	
+	DrawRectangle(offsetX + SCL(0), offsetY + SCL(0), SCL(1920), SCL(1080), BACKGROUND_COLOR_80);
+	
+	DrawRectangle(offsetX + SCL(910), offsetY + SCL(495), SCL(10), SCL(90), GRAY_6_COLOR_100); //panel gradient start
+	
+	Gradient::drawGradientRect( // panel gradient
+        gradientShader, 
+        Rectangle{(float)offsetX + SCL(920), (float)offsetY + SCL(495), (float)SCL(90), (float)SCL(90)},
+        PRIMARY_0_COLOR_100,
+        PRIMARY_0_COLOR_20, 
+        false
+    );
+	
+	//DrawRectangle(offsetX + SCL(960 - 30), offsetY + SCL(540 - 30), 60, 60, PRIMARY_0_COLOR_100);
+	DrawTextEx(ORBITRON_BOLD, std::to_string(-static_cast<int>(task.time) + 1).c_str(), Vector2{offsetX + SCL(945), offsetY + SCL(515)}, SCL(50), 1, GRAY_6_COLOR_100);
+	
+	#undef SCL
+}
 bool MenuScreen::isPointInRect(Vector2 point, Rectangle rect) {
     return (point.x >= rect.x && point.x <= rect.x + rect.width && point.y >= rect.y && point.y <= rect.y + rect.height);
 }

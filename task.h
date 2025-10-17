@@ -57,7 +57,11 @@ public:
 	}
 	
 	void resetTimer() {
-		time = 0.0;
+		time = -3.0;
+	}
+	
+	void tickPaused(double deltaTime) {
+		time += deltaTime;
 	}
 	
 	void tick(double deltaTime) {

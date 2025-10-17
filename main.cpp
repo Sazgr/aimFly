@@ -175,7 +175,7 @@ int main() {
 						task.setTask(TaskId::BOXSHOT, shader);
 						break;
 					case MenuAction::BEGIN:
-						stateManager.setState(GameState::PLAYING);
+						stateManager.setState(GameState::COUNTDOWN);
 						task.resetTimer();
 						td = TaskData{};
 						DisableCursor();
@@ -188,7 +188,76 @@ int main() {
                     break; // exit main loop
                 }
 			EndDrawing();
-        } else if (stateManager.isState(GameState::PAUSED)) {
+        } else if (stateManager.isState(GameState::COUNTDOWN)) {
+			if (task.time >= 0) {
+				stateManager.setState(GameState::PLAYING);
+			}
+			Vector3 forward = {
+                cosf(pitch) * cosf(yaw),
+                sinf(pitch),
+                cosf(pitch) * sinf(yaw)
+            };
+            forward = Vector3Normalize(forward);
+            Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, Vector3{0, 1, 0}));
+			
+			BeginDrawing();
+				ClearBackground(BLACK);
+				
+				BeginTextureMode(gameTexture);
+                    ClearBackground(SKYBLUE);
+
+                    BeginMode3D(camera);
+                        BeginShaderMode(shader);
+                            DrawCube(Vector3{0.0f, -3.0f, 0.0f}, 54.0, 2.0, 20.0, GRAY);
+                            DrawCube(Vector3{25.0f, 4.0f, 0.0f}, 2.0, 14.0, 20.0, GRAY);
+                        EndShaderMode();
+
+                        task.draw();
+
+                        float lightPos[3] = {lightPosition.x, lightPosition.y, lightPosition.z};
+                        SetShaderValue(shader, lightPosLoc, lightPos, SHADER_UNIFORM_VEC3);
+
+                        float camPos[3] = {camera.position.x, camera.position.y, camera.position.z};
+                        SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], camPos, SHADER_UNIFORM_VEC3);
+
+                        SetShaderValue(shader, specularExponentLoc, &specularExponent, SHADER_UNIFORM_FLOAT);
+
+                        Vector3 upVec = Vector3CrossProduct(right, forward);
+                        position = Vector3Add(camera.position,
+                            Vector3Add(
+                                Vector3Scale(forward, 1.8f),
+                                Vector3Add(
+                                    Vector3Scale(right, 0.8f),
+                                    Vector3Scale(upVec, -0.5f)
+                                )
+                            )
+                        );
+
+                        weapon.model.transform = MatrixRotateXYZ(Vector3{0, -yaw, pitch});
+                        weapon.draw(position, 0.1f);
+                    EndMode3D();
+                EndTextureMode();
+
+                // draw the texture centered on screen with proper 16:9 letterboxing
+                DrawTexturePro(
+                    gameTexture.texture,
+                    Rectangle{0, 0, (float)NATIVE_WIDTH, -(float)NATIVE_HEIGHT}, // flip Y
+                    Rectangle{(float)offsetX, (float)offsetY, (float)scaledWidth, (float)scaledHeight},
+                    Vector2{0,0},
+                    0.0f,
+                    WHITE
+                );
+				
+				task.tickPaused(timer.getDeltaTime());
+				
+				menuScreen.renderCountdown(
+                    screenWidth, screenHeight, offsetX, offsetY, 
+                    scaledWidth, scaledHeight, input,
+                    NATIVE_WIDTH, NATIVE_HEIGHT,
+                    gradientShader, task
+                );
+			EndDrawing();
+		} else if (stateManager.isState(GameState::PAUSED)) {
 			Vector3 forward = {
                 cosf(pitch) * cosf(yaw),
                 sinf(pitch),
@@ -259,7 +328,7 @@ int main() {
 						cursorEnabled = false;
 						break;
                     case MenuAction::RESTART:
-						stateManager.setState(GameState::PLAYING);
+						stateManager.setState(GameState::COUNTDOWN);
 						task.resetTimer();
 						td = TaskData{};
 						DisableCursor();
