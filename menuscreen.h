@@ -2,6 +2,7 @@
 
 #include "inputmanager.h"
 #include "menu.h"
+#include "task.h"
 #include "taskdata.h"
 #include "uicomponents.h"
 
@@ -61,4 +62,7 @@ public:
 	MenuAction renderPauseOverlay(int screenWidth, int screenHeight, int offsetX, int offsetY, 
                       int scaledWidth, int scaledHeight, InputManager& input, 
                       int nativeWidth, int nativeHeight, Shader& gradientShader);
+	void renderCountdown(int screenWidth, int screenHeight, int offsetX, int offsetY, 
+                      int scaledWidth, int scaledHeight, InputManager& input, 
+                      int nativeWidth, int nativeHeight, Shader& gradientShader, Task& task);
 };
