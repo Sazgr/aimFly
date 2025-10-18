@@ -174,6 +174,9 @@ int main() {
 					case MenuAction::PEEKING:
 						task.setTask(TaskId::BOXSHOT, shader);
 						break;
+					case MenuAction::MICRO:
+						task.setTask(TaskId::ONEWALL4T, shader);
+						break;
 					case MenuAction::BEGIN:
 						stateManager.setState(GameState::COUNTDOWN);
 						task.resetTimer();

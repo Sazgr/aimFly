@@ -22,6 +22,7 @@
     X(PEEKING,     "PEEKING") \
     X(TRACKING,    "TRACKING") \
     X(FLICKING,    "FLICKING") \
+	X(MICRO,       "MICRO") \
     X(HEADSHOT,    "HEADSHOT") \
     X(BEGIN,       "BEGIN") \
     X(RESUME,      "RESUME") \
