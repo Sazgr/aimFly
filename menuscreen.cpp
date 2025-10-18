@@ -77,6 +77,91 @@ void MenuScreen::drawStat(float aspectScale, int offsetX, int offsetY, int x, st
 	#undef SCL
 }
 
+void MenuScreen::generateGrid(const std::vector<std::string>& items, int containerX, int containerY, int containerWidth, int containerHeight, int offsetX, int offsetY, float aspectScale) {
+    gridBoxes.clear();
+    
+    if (items.empty()) return;
+    
+    int numItems = items.size();
+    
+    int cols = 2;
+    int rows = (numItems + cols - 1) / cols; 
+    
+    if (numItems <= 2) {
+        cols = numItems;
+        rows = 1;
+    }
+
+    int availableWidth = containerWidth - (gridConfig.marginX * 2) - (gridConfig.padding * (cols - 1));
+    int availableHeight = containerHeight - (gridConfig.marginY * 2) - (gridConfig.padding * (rows - 1));
+    int boxWidth = availableWidth / cols;
+    int boxHeight = availableHeight / rows;
+    
+    for (int i = 0; i < numItems; i++) {
+        int col = i % cols;
+        int row = i / cols;
+        
+        int x = containerX + gridConfig.marginX + (col * (boxWidth + gridConfig.padding));
+        int y = containerY + gridConfig.marginY + (row * (boxHeight + gridConfig.padding));
+        
+        GridBox box;
+        box.rect = { 
+            static_cast<float>(offsetX + x), 
+            static_cast<float>(offsetY + y), 
+            static_cast<float>(boxWidth), 
+            static_cast<float>(boxHeight) 
+        };
+        box.name = items[i];
+        box.index = i;
+        
+        gridBoxes.push_back(box);
+    }
+}
+
+void MenuScreen::renderGridBoxes(InputManager& input) {
+    Vector2 mousePos = input.getMousePosition();
+    bool mouseClicked = input.isMousePressed(MOUSE_LEFT_BUTTON);
+    hoveredBoxIndex = -1;
+    
+    for (size_t i = 0; i < gridBoxes.size(); i++) {
+        const GridBox& box = gridBoxes[i];
+        
+        bool isHovered = isPointInRect(mousePos, box.rect);
+        bool isSelected = (selectedBoxIndex == static_cast<int>(i));
+        
+        if (isHovered) {
+            hoveredBoxIndex = i;
+            
+            if (mouseClicked) {
+                selectedBoxIndex = i;
+            }
+        }
+        
+        Color boxColor = gridConfig.normalColor;
+        if (isSelected) {
+            boxColor = gridConfig.selectedColor;
+        } else if (isHovered) {
+            boxColor = gridConfig.hoverColor;
+        }
+        
+        DrawRectangleRec(box.rect, boxColor);
+        
+        const char* text = box.name.c_str();
+        int fontSize = 20;
+        int textWidth = MeasureText(text, fontSize);
+        int textX = box.rect.x + (box.rect.width - textWidth) / 2;
+        int textY = box.rect.y + (box.rect.height - fontSize) / 2;
+        DrawText(text, textX, textY, fontSize, WHITE);
+    }
+}
+
+std::string MenuScreen::getSelectedGridItem() {
+    if (selectedBoxIndex >= 0 && selectedBoxIndex < static_cast<int>(gridBoxes.size())) {
+        return gridBoxes[selectedBoxIndex].name;
+    }
+    return "";
+}
+
 MenuAction MenuScreen::renderMenu(int screenWidth, int screenHeight, int offsetX, int offsetY, int scaledWidth, int scaledHeight, InputManager& input, int nativeWidth, int nativeHeight, Shader& gradientShader, TaskData& taskData) {
     float aspectScale = (float)scaledWidth / (float)nativeWidth;
     
@@ -187,6 +272,22 @@ MenuAction MenuScreen::renderMenu(int screenWidth, int screenHeight, int offsetX
         GRAY_2_COLOR_100
     );
 	DrawRectangle(offsetX + SCL(1824), offsetY + SCL(332), SCL(56), SCL(4), GRAY_2_COLOR_100);
+
+	static bool gridInitialized = false;
+	if (!gridInitialized) {
+		std::vector<std::string> taskNames = {
+			"thing",
+			"another thing",
+			"b",
+			"d"
+		};
+		
+		generateGrid(taskNames, SCL(842), SCL(338), SCL(1038), SCL(572), offsetX, offsetY, aspectScale);
+		gridInitialized = true;
+	}
+	
+	// Render grid boxes
+	renderGridBoxes(input);
 	
 	DrawRectangle(offsetX + SCL(842), offsetY + SCL(910), SCL(1038), SCL(2), GRAY_2_COLOR_100); //details pane lower border
 	
@@ -318,6 +419,7 @@ void MenuScreen::renderCountdown(int screenWidth, int screenHeight, int offsetX,
 	
 	#undef SCL
 }
+
 bool MenuScreen::isPointInRect(Vector2 point, Rectangle rect) {
     return (point.x >= rect.x && point.x <= rect.x + rect.width && point.y >= rect.y && point.y <= rect.y + rect.height);
 }
