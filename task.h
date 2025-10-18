@@ -52,10 +52,10 @@ public:
 			targets.emplace_back(TargetType::BODY, Vector3{20.0f, 0.0f, 0.0f}, 0.3f);
 			targets[0].velocity = Vector3{0, 0, targetSpeed};
 		} else if (taskId == TaskId::ONEWALL4T) {
-			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, -0.8f}, 0.1f);
-			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 1.1f, 0.0f}, 0.1f);
-			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, -1.5f, 0.4f}, 0.1f);
-			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, -0.3f, 1.1f}, 0.1f);
+			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 0.0f, -0.8f}, 0.08f);
+			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, 1.1f, 0.0f}, 0.08f);
+			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, -1.5f, 0.4f}, 0.08f);
+			targets.emplace_back(TargetType::SPHERE, Vector3{8.0f, -0.3f, 1.1f}, 0.08f);
 			for (int i{}; i < 21; ++i) {
 				for (int j{}; j < 21; ++j) {
 					targetPresent[i][j] = false;
@@ -157,6 +157,7 @@ public:
 			if (target.health <= 0) {
 				target.health = 4;
 				target.position.z = 0;
+				if (std::rand() % 2) targets[0].velocity.z = -targets[0].velocity.z;
 				return true;
 			}
 			return false;
