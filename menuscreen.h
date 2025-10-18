@@ -12,38 +12,32 @@
 #include <utility>
 #include <vector>
 
+#define MENU_ACTIONS(X) \
+    X(NONE,        "NONE") \
+    X(PRACTICE,    "PRACTICE") \
+    X(CALIBRATE,   "CALIBRATE") \
+    X(SETTINGS,    "SETTINGS") \
+    X(CREDITS,     "CREDITS") \
+    X(EXIT,        "EXIT") \
+    X(PEEKING,     "PEEKING") \
+    X(TRACKING,    "TRACKING") \
+    X(FLICKING,    "FLICKING") \
+    X(HEADSHOT,    "HEADSHOT") \
+    X(BEGIN,       "BEGIN") \
+    X(RESUME,      "RESUME") \
+    X(RESTART,     "RESTART") \
+    X(EXIT_TASK,   "EXIT TASK")
+
 enum class MenuAction {
-	NONE,
-    PRACTICE,
-    CALIBRATE,
-    SETTINGS,
-    CREDITS, 
-    EXIT,
-	PEEKING,
-	TRACKING,
-	FLICKING,
-	HEADSHOT,
-	BEGIN,
-	RESUME,
-	RESTART,
-	EXIT_TASK,
+#define X(name, text) name,
+    MENU_ACTIONS(X)
+#undef X
 };
 
-// map button text to action
 const std::unordered_map<std::string, MenuAction> buttonActions = {
-	{"PRACTICE", MenuAction::PRACTICE},
-	{"CALIBRATE", MenuAction::CALIBRATE},
-	{"SETTINGS", MenuAction::SETTINGS},
-	{"CREDITS", MenuAction::CREDITS},
-	{"EXIT", MenuAction::EXIT},
-	{"PEEKING", MenuAction::PEEKING},
-	{"TRACKING", MenuAction::TRACKING},
-	{"FLICKING", MenuAction::FLICKING},
-	{"HEADSHOT", MenuAction::HEADSHOT},
-	{"BEGIN", MenuAction::BEGIN},
-	{"RESUME", MenuAction::RESUME},
-	{"RESTART", MenuAction::RESTART},
-	{"EXIT TASK", MenuAction::EXIT_TASK},
+#define X(name, text) {text, MenuAction::name},
+    MENU_ACTIONS(X)
+#undef X
 };
 
 class MenuScreen {
