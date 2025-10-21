@@ -1,10 +1,12 @@
 #pragma once
 
+#include "gridmenu.h"
 #include "inputmanager.h"
 #include "menu.h"
 #include "task.h"
 #include "taskdata.h"
 #include "uicomponents.h"
+#include "util.h"
 
 #include "raylib.h"
 
@@ -41,41 +43,12 @@ const std::unordered_map<std::string, MenuAction> buttonActions = {
 #undef X
 };
 
-struct GridBox {
-    Rectangle rect;
-    std::string name;
-    int index;
-};
-
 class MenuScreen {
-private:
-    bool isPointInRect(Vector2 point, Rectangle rect);
-
-    std::vector<GridBox> gridBoxes;
-    int hoveredBoxIndex = -1;
-    int selectedBoxIndex = -1;
-
-    struct GridConfig {
-        int padding = 16;      
-        int marginX = 8;      
-        int marginY = 8;     
-        Color normalColor = DARKGRAY;
-        Color hoverColor = GRAY;
-        Color selectedColor = LIGHTGRAY;
-    } gridConfig;
-
-    void generateGrid(const std::vector<std::string>& items, 
-                 int containerX, int containerY, 
-                 int containerWidth, int containerHeight,
-                 int offsetX, int offsetY, float aspectScale);
-    
-    void renderGridBoxes(InputManager& input);
-    std::string getSelectedGridItem();
 public:
 	std::vector<Menu> menus;
+	std::vector<GridMenu> gridMenus;
 	MenuScreen();
 	std::pair<std::string, std::string> getDateTime();
-    void setupExampleGrid(int offsetX, int offsetY);
 	void drawStat(float aspectScale, int offsetX, int offsetY, int x, std::string statTitle, std::string statValue);
     MenuAction renderMenu(int screenWidth, int screenHeight, int offsetX, int offsetY, 
                       int scaledWidth, int scaledHeight, InputManager& input, 
